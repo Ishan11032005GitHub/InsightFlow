@@ -1,8 +1,3 @@
-/*
-  styles.css
-*/
-
-/* Body */
 body {
     font-family: Arial, Helvetica, sans-serif;
     background-color: #f4f6f8;
@@ -10,7 +5,6 @@ body {
     padding: 0;
 }
 
-/* Header Section */
 header {
     background-color: #1f2937;
     color: white;
@@ -18,29 +12,29 @@ header {
     text-align: center;
 }
 
-/* Main Dashboard */
 main {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 30px auto;
     background: white;
     padding: 25px;
     border-radius: 8px;
 }
 
-/* Heading */
 h2 {
     color: #111827;
 }
 
-/* Prompt Box */
 textarea {
     width: 100%;
-    height: 140px;
+    height: 120px;
     padding: 10px;
     margin-top: 10px;
 }
 
-/* Generate Report Button */
+input {
+    margin-top: 8px;
+}
+
 button {
     margin-top: 15px;
     padding: 10px 18px;
@@ -51,15 +45,96 @@ button {
     cursor: pointer;
 }
 
-/* Output Section */
-.output-section {
+button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.preview-section,
+.output-section,
+.chart-section,
+.insight-section {
     margin-top: 30px;
 }
 
-/* Footer */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    border: 1px solid #d1d5db;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #f3f4f6;
+}
+
+.chart-section canvas {
+    max-width: 100%;
+    margin-top: 20px;
+}
+
+.chart-section button {
+    margin-bottom: 20px;
+}
+
+.insight-section {
+    background-color: #f9fafb;
+    padding: 15px;
+    border-left: 4px solid #2563eb;
+}
+
 footer {
     text-align: center;
     padding: 15px;
     color: #6b7280;
     font-size: 13px;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+
+    main {
+        margin: 10px;
+        padding: 15px;
+    }
+
+    textarea {
+        height: 100px;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    table {
+        font-size: 14px;
+    }
+
+    th, td {
+        padding: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    header h1 {
+        font-size: 20px;
+    }
+
+    header p {
+        font-size: 14px;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+}
+.hidden {
+    display: none;
 }
