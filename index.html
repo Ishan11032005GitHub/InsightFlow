@@ -1,4 +1,3 @@
-<!--index.html-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,50 +5,73 @@
     <title>Automated Report Generation System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Linking external CSS file -->
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
-    <!-- Header section -->
-    <header>
-        <h1>Automated Report Generation & Visualization</h1>
-        <p>Software Engineering Lab Project</p>
-    </header>
+<header>
+    <h1>Automated Report Generation & Visualization</h1>
+    <p>Software Engineering Lab Project</p>
+</header>
 
-    <!-- Main dashboard -->
-    <main>
+<main>
 
-        <!-- Data input section -->
-        <section class="input-section">
-            <h2>Data Input</h2>
-            <p>Paste sample data (CSV/JSON format will be supported later).</p>
+    <section class="input-section">
+        <h2>Data Input</h2>
 
-            <textarea id="dataInput" placeholder="Enter data here..."></textarea>
+        <label><strong>Upload CSV File:</strong></label>
+        <input type="file" id="fileInput" accept=".csv">
 
-            <button onclick="generateReport()">Generate Report</button>
-        </section>
+        <p>OR enter numeric data manually:</p>
+        <textarea id="dataInput" placeholder="Enter data here..."></textarea>
 
-        <!-- Output section -->
-        <section class="output-section">
-            <h2>Generated Report</h2>
+        <button id="generateBtn" onclick="generateReport()" class="hidden">
+            Generate Report
+        </button>
 
-            <p><strong>Total:</strong> <span id="total">-</span></p>
-            <p><strong>Average:</strong> <span id="average">-</span></p>
-            <p><strong>Maximum:</strong> <span id="maximum">-</span></p>
-            <p><strong>Minimum:</strong> <span id="minimum">-</span></p>
-        </section>
+        <button id="downloadBtn" onclick="downloadCSV()" class="hidden">
+            Download Report CSV
+        </button>
+    </section>
 
-    </main>
+    <section class="preview-section">
+        <h2>CSV Data Preview</h2>
+        <div id="tableContainer">No data loaded.</div>
+    </section>
 
-    <!-- Footer -->
-    <footer>
-        <p>© 2026 Automated Report System</p>
-    </footer>
+    <section class="output-section">
+        <h2>Generated Report</h2>
+        <div id="reportTable">No report generated.</div>
+    </section>
 
-    <!-- Linking external JavaScript file -->
-    <script src="script.js"></script>
+    <section class="chart-section">
+        <h2>Data Visualization</h2>
+
+        <canvas id="barChart"></canvas>
+        <button id="barDownload" onclick="downloadChart('barChart')" class="hidden">
+            Download Bar Chart
+        </button>
+
+        <canvas id="pieChart"></canvas>
+        <button id="pieDownload" onclick="downloadChart('pieChart')" class="hidden">
+            Download Pie Chart
+        </button>
+    </section>
+
+    <section class="insight-section">
+        <h2>Automated Insights</h2>
+        <p id="insightText">Insights will be generated automatically.</p>
+    </section>
+
+</main>
+
+<footer>
+    <p>© 2026 Automated Report System</p>
+</footer>
+
+<script src="script.js"></script>
 
 </body>
 </html>
