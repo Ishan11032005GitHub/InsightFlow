@@ -2,75 +2,96 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Automated Report Generation System</title>
+    <title>InsightFlow | Automated Report Generation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="styles.css">
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-<header>
-    <h1>Automated Report Generation & Visualization</h1>
-    <p>Software Engineering Lab Project</p>
-</header>
+<div class="dashboard">
 
-<main>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i data-lucide="zap"></i>
+            <span>InsightFlow</span>
+        </div>
+        <nav>
+            <a class="active"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+            <a><i data-lucide="file-text"></i> Reports</a>
+            <a><i data-lucide="bar-chart-3"></i> Visuals</a>
+        </nav>
+        <div class="sidebar-footer">
+            <p>SE Lab · v1.0</p>
+        </div>
+    </aside>
 
-    <section class="input-section">
-        <h2>Data Input</h2>
+    <!-- Main Content -->
+    <main class="content">
 
-        <label><strong>Upload CSV File:</strong></label>
-        <input type="file" id="fileInput" accept=".csv">
+        <header class="top-bar">
+            <h1>Automated Analytics Dashboard</h1>
+            <p>Upload data and generate instant insights</p>
+        </header>
 
-        <p>OR enter numeric data manually:</p>
-        <textarea id="dataInput" placeholder="Enter data here..."></textarea>
+        <div class="grid">
 
-        <button id="generateBtn" onclick="generateReport()" class="hidden">
-            Generate Report
-        </button>
+            <!-- Input Card -->
+            <section class="card">
+                <h2><i data-lucide="upload-cloud"></i> Data Input</h2>
 
-        <button id="downloadBtn" onclick="downloadCSV()" class="hidden">
-            Download Report CSV
-        </button>
-    </section>
+                <input type="file" id="fileInput" accept=".csv">
 
-    <section class="preview-section">
-        <h2>CSV Data Preview</h2>
-        <div id="tableContainer">No data loaded.</div>
-    </section>
+                <textarea id="dataInput" placeholder="Paste numeric data (comma separated)..."></textarea>
 
-    <section class="output-section">
-        <h2>Generated Report</h2>
-        <div id="reportTable">No report generated.</div>
-    </section>
+                <div class="actions">
+                    <button id="generateBtn" class="primary hidden">Generate Report</button>
+                    <button id="downloadBtn" class="secondary hidden">Download CSV</button>
+                </div>
+            </section>
 
-    <section class="chart-section">
-        <h2>Data Visualization</h2>
+            <!-- Insight Card -->
+            <section class="card">
+                <h2><i data-lucide="sparkles"></i> Automated Insights</h2>
+                <p id="insightText" class="placeholder">Waiting for data...</p>
+            </section>
 
-        <canvas id="barChart"></canvas>
-        <button id="barDownload" onclick="downloadChart('barChart')" class="hidden">
-            Download Bar Chart
-        </button>
+            <!-- Charts -->
+            <section class="card full">
+                <h2><i data-lucide="bar-chart-3"></i> Visual Analytics</h2>
+                <div class="charts">
+                    <canvas id="barChart"></canvas>
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </section>
 
-        <canvas id="pieChart"></canvas>
-        <button id="pieDownload" onclick="downloadChart('pieChart')" class="hidden">
-            Download Pie Chart
-        </button>
-    </section>
+            <!-- Table -->
+            <section class="card full">
+                <h2><i data-lucide="table"></i> Data Preview</h2>
+                <div id="tableContainer" class="table-wrapper">
+                    <p class="placeholder">No data loaded</p>
+                </div>
+            </section>
 
-    <section class="insight-section">
-        <h2>Automated Insights</h2>
-        <p id="insightText">Insights will be generated automatically.</p>
-    </section>
+        </div>
+    </main>
 
-</main>
+</div>
 
-<footer>
-    <p>© 2026 Automated Report System</p>
-</footer>
-
+<script>
+    lucide.createIcons();
+</script>
 <script src="script.js"></script>
 
 </body>
