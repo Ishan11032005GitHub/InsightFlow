@@ -5,9 +5,10 @@
     <title>InsightFlow | Automated Report Generation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Fonts & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Charts -->
@@ -21,77 +22,105 @@
 
 <div class="dashboard">
 
-    <!-- Sidebar -->
+    <!-- ================= SIDEBAR ================= -->
     <aside class="sidebar">
         <div class="logo">
             <i data-lucide="zap"></i>
             <span>InsightFlow</span>
         </div>
-        <nav>
+
+        <nav class="nav-menu">
             <a class="active"><i data-lucide="layout-dashboard"></i> Dashboard</a>
             <a><i data-lucide="file-text"></i> Reports</a>
-            <a><i data-lucide="bar-chart-3"></i> Visuals</a>
+            <a><i data-lucide="bar-chart-3"></i> Visualizations</a>
         </nav>
+
         <div class="sidebar-footer">
-            <p>SE Lab · v1.0</p>
+            <p>SE Lab Project</p>
+            <small>Automated Report Generation</small>
         </div>
     </aside>
 
-    <!-- Main Content -->
+    <!-- ================= MAIN CONTENT ================= -->
     <main class="content">
 
+        <!-- HEADER -->
         <header class="top-bar">
-            <h1>Automated Analytics Dashboard</h1>
-            <p>Upload data and generate instant insights</p>
+            <h1>Automated Report Generation & Visualization</h1>
+            <p>Upload data, analyze it automatically, and visualize insights</p>
         </header>
 
-        <div class="grid">
+        <!-- ================= DASHBOARD GRID ================= -->
+        <section class="grid">
 
-            <!-- Input Card -->
+            <!-- DATA INPUT -->
             <section class="card">
                 <h2><i data-lucide="upload-cloud"></i> Data Input</h2>
 
-                <input type="file" id="fileInput" accept=".csv">
+                <div class="form-group">
+                    <label for="fileInput">Upload CSV File</label>
+                    <input type="file" id="fileInput" accept=".csv">
+                </div>
 
-                <textarea id="dataInput" placeholder="Paste numeric data (comma separated)..."></textarea>
+                <div class="form-group">
+                    <label for="dataInput">Or Enter Data Manually</label>
+                    <textarea id="dataInput"
+                        placeholder="Example: 10, 20, 30, 40"></textarea>
+                </div>
 
                 <div class="actions">
-                    <button id="generateBtn" class="primary hidden">Generate Report</button>
-                    <button id="downloadBtn" class="secondary hidden">Download CSV</button>
+                    <button id="generateBtn" class="primary hidden">
+                        Generate Report
+                    </button>
+                    <button id="downloadBtn" class="secondary hidden">
+                        Download CSV
+                    </button>
                 </div>
             </section>
 
-            <!-- Insight Card -->
+            <!-- AUTOMATED INSIGHTS -->
             <section class="card">
                 <h2><i data-lucide="sparkles"></i> Automated Insights</h2>
-                <p id="insightText" class="placeholder">Waiting for data...</p>
+                <p id="insightText" class="placeholder">
+                    Insights will be generated automatically after analysis.
+                </p>
             </section>
 
-            <!-- Charts -->
+            <!-- VISUAL ANALYTICS -->
             <section class="card full">
                 <h2><i data-lucide="bar-chart-3"></i> Visual Analytics</h2>
+
                 <div class="charts">
-                    <canvas id="barChart"></canvas>
-                    <canvas id="pieChart"></canvas>
+                    <div class="chart-box">
+                        <h3>Bar Chart</h3>
+                        <canvas id="barChart"></canvas>
+                    </div>
+
+                    <div class="chart-box">
+                        <h3>Pie Chart</h3>
+                        <canvas id="pieChart"></canvas>
+                    </div>
                 </div>
             </section>
 
-            <!-- Table -->
+            <!-- DATA PREVIEW -->
             <section class="card full">
                 <h2><i data-lucide="table"></i> Data Preview</h2>
                 <div id="tableContainer" class="table-wrapper">
-                    <p class="placeholder">No data loaded</p>
+                    <p class="placeholder">No data loaded yet.</p>
                 </div>
             </section>
 
-        </div>
+        </section>
     </main>
-
 </div>
 
+<!-- ICON INIT -->
 <script>
     lucide.createIcons();
 </script>
+
+<!-- JS -->
 <script src="script.js"></script>
 
 </body>
