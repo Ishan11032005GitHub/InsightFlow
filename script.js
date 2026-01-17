@@ -3,37 +3,113 @@ let barChart = null;
 let pieChart = null;
 let lastReport = null;
 
-const generateBtn = document.getElementById("generateBtn");
-const downloadBtn = document.getElementById("downloadBtn");
-const barDownload = document.getElementById("barDownload");
-const pieDownload = document.getElementById("pieDownload");
+// Global references to elements to be used in functions
+let generateBtn;
+let downloadBtn;
+let barDownload;
+let pieDownload;
+let fileInput;
+let dataInput;
+let tableContainer;
+let reportTableElement;
+let insightElement;
 
-document.getElementById("fileInput").addEventListener("change", handleFile);
-document.getElementById("dataInput").addEventListener("input", handleManualInput);
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize element references
+    generateBtn = document.getElementById("generateBtn");
+    downloadBtn = document.getElementById("downloadBtn");
+    barDownload = document.getElementById("barDownload");
+    pieDownload = document.getElementById("pieDownload");
+    fileInput = document.getElementById("fileInput");
+    dataInput = document.getElementById("dataInput");
+    tableContainer = document.getElementById("tableContainer");
+    reportTableElement = document.getElementById("reportTable");
+    insightElement = document.getElementById("insightText");
+
+    // Event Listeners
+    if (fileInput) fileInput.addEventListener("change", handleFile);
+    if (dataInput) dataInput.addEventListener("input", handleManualInput);
+    if (generateBtn) generateBtn.addEventListener('click', generateReport);
+    if (downloadBtn) downloadBtn.addEventListener('click', downloadCSV);
+    if (barDownload) barDownload.addEventListener('click', () => downloadChart('barChart'));
+    if (pieDownload) pieDownload.addEventListener('click', () => downloadChart('pieChart'));
+
+    // --- Dark Mode Logic ---
+    const themeToggleBtn = document.getElementById('themeToggle');
+    const body = document.body;
+
+    // Check saved preference
+    if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode');
+        updateThemeIcon(true);
+    }
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        });
+    }
+
+    function updateThemeIcon(isDark) {
+        if (!themeToggleBtn) return;
+        themeToggleBtn.innerHTML = isDark
+            ? '<i data-lucide="sun"></i> Light Mode'
+            : '<i data-lucide="moon"></i> Dark Mode';
+
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+
+    // --- Mobile Sidebar Logic ---
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.querySelector('.sidebar');
+
+    if (mobileMenuBtn && sidebar) {
+        mobileMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('open');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (sidebar.classList.contains('open') &&
+                !sidebar.contains(e.target) &&
+                e.target !== mobileMenuBtn) {
+                sidebar.classList.remove('open');
+            }
+        });
+    }
+
+    // Initialize Icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
 
 function handleFile(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Clear manual input
-    document.getElementById("dataInput").value = "";
+    if (dataInput) dataInput.value = "";
 
     const reader = new FileReader();
     reader.onload = e => {
         csvData = parseCSV(e.target.result);
         renderPreview(csvData);
 
-        // Show Generate button
-        generateBtn.classList.remove("hidden");
+        if (generateBtn) generateBtn.classList.remove("hidden");
     };
     reader.readAsText(file);
 }
 
 function handleManualInput() {
-    const input = document.getElementById("dataInput").value.trim();
+    const input = dataInput.value.trim();
     if (input !== "") {
         csvData = null;
-        generateBtn.classList.remove("hidden");
+        if (generateBtn) generateBtn.classList.remove("hidden");
     }
 }
 
@@ -58,14 +134,14 @@ function renderPreview(data) {
     });
 
     html += "</table>";
-    document.getElementById("tableContainer").innerHTML = html;
+    if (tableContainer) tableContainer.innerHTML = html;
 }
 
 function generateReport() {
     let data = csvData;
 
     if (!data) {
-        const input = document.getElementById("dataInput").value.trim();
+        const input = dataInput.value.trim();
         if (!input) return alert("Upload CSV or enter numeric data.");
 
         data = {
@@ -74,6 +150,7 @@ function generateReport() {
         };
     }
 
+    // Filter out invalid rows if needed, or check for NaN
     if (data.rows.flat().some(isNaN)) {
         return alert("Invalid numeric data detected.");
     }
@@ -96,10 +173,12 @@ function generateReport() {
 
     lastReport = report;
 
-    // Show download buttons AFTER report generation
-    downloadBtn.classList.remove("hidden");
-    barDownload.classList.remove("hidden");
-    pieDownload.classList.remove("hidden");
+    if (downloadBtn) downloadBtn.classList.remove("hidden");
+    if (barDownload) barDownload.classList.remove("hidden");
+    if (pieDownload) pieDownload.classList.remove("hidden");
+
+    // Refresh icons since new content might have icons (though tables don't here)
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function renderReportTable(report) {
@@ -117,7 +196,7 @@ function renderReportTable(report) {
     });
 
     html += "</table>";
-    document.getElementById("reportTable").innerHTML = html;
+    if (reportTableElement) reportTableElement.innerHTML = html;
 }
 
 function generateCharts(report) {
@@ -128,31 +207,39 @@ function generateCharts(report) {
     if (barChart) barChart.destroy();
     if (pieChart) pieChart.destroy();
 
-    barChart = new Chart(document.getElementById("barChart"), {
-        type: "bar",
-        data: {
-            labels,
-            datasets: [{ label: "Average Values", data: averages }]
-        }
-    });
+    const barCtx = document.getElementById("barChart");
+    if (barCtx) {
+        barChart = new Chart(barCtx, {
+            type: "bar",
+            data: {
+                labels,
+                datasets: [{ label: "Average Values", data: averages }]
+            }
+        });
+    }
 
-    pieChart = new Chart(document.getElementById("pieChart"), {
-        type: "pie",
-        data: {
-            labels,
-            datasets: [{ data: totals }]
-        }
-    });
+    const pieCtx = document.getElementById("pieChart");
+    if (pieCtx) {
+        pieChart = new Chart(pieCtx, {
+            type: "pie",
+            data: {
+                labels,
+                datasets: [{ data: totals }]
+            }
+        });
+    }
 }
 
 function generateInsights(report) {
     const avgOfAvgs =
         report.reduce((s, r) => s + r.avg, 0) / report.length;
 
-    document.getElementById("insightText").innerText =
-        avgOfAvgs >= 75
-            ? "Overall dataset performance is strong across columns."
-            : "Overall dataset performance shows room for improvement.";
+    if (insightElement) {
+        insightElement.innerText =
+            avgOfAvgs >= 75
+                ? "Overall dataset performance is strong across columns."
+                : "Overall dataset performance shows room for improvement.";
+    }
 }
 
 function downloadCSV() {
@@ -176,20 +263,9 @@ function downloadCSV() {
 
 function downloadChart(canvasId) {
     const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
     const link = document.createElement("a");
     link.download = `${canvasId}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
 }
-// DARK MODE TOGGLE
-const toggleButton = document.getElementById("themeToggle");
-
-toggleButton.addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-
-    if (document.body.classList.contains("dark")) {
-        toggleButton.textContent = "☀️ Light Mode";
-    } else {
-        toggleButton.textContent = "🌙 Dark Mode";
-    }
-});

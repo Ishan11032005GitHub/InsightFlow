@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>InsightFlow | Automated Report Generation</title>
@@ -20,112 +21,113 @@
 
 <body>
 
-<div class="dashboard">
+    <div class="dashboard">
 
-    <!-- ================= SIDEBAR ================= -->
-    <aside class="sidebar">
-        <div class="logo">
-            <i data-lucide="zap"></i>
-            <span>InsightFlow</span>
-        </div>
+        <!-- ================= SIDEBAR ================= -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i data-lucide="zap"></i>
+                <span>InsightFlow</span>
+            </div>
 
-        <nav class="nav-menu">
-            <a class="active"><i data-lucide="layout-dashboard"></i> Dashboard</a>
-            <a><i data-lucide="file-text"></i> Reports</a>
-            <a><i data-lucide="bar-chart-3"></i> Visualizations</a>
-        </nav>
+            <nav class="nav-menu">
+                <a class="active"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+                <a><i data-lucide="file-text"></i> Reports</a>
+                <a><i data-lucide="bar-chart-3"></i> Visualizations</a>
+            </nav>
 
-        <div class="sidebar-footer">
-            <p>SE Lab Project</p>
-            <small>Automated Report Generation</small>
-        </div>
-    </aside>
+            <div class="sidebar-footer">
+                <p>SE Lab Project</p>
+                <small>Automated Report Generation</small>
+            </div>
+        </aside>
 
-    <!-- ================= MAIN CONTENT ================= -->
-    <main class="content">
+        <!-- ================= MAIN CONTENT ================= -->
+        <main class="content">
 
-        <!-- HEADER -->
-        <header class="top-bar">
-            <h1>Automated Report Generation & Visualization</h1>
-            <p>Upload data, analyze it automatically, and visualize insights</p>
-            <button id="themeToggle" class="theme-toggle">
-            🌙 Dark Mode
-            </button>
-
-        </header>
-
-        <!-- ================= DASHBOARD GRID ================= -->
-        <section class="grid">
-
-            <!-- DATA INPUT -->
-            <section class="card">
-                <h2><i data-lucide="upload-cloud"></i> Data Input</h2>
-
-                <div class="form-group">
-                    <label for="fileInput">Upload CSV File</label>
-                    <input type="file" id="fileInput" accept=".csv">
-                </div>
-
-                <div class="form-group">
-                    <label for="dataInput">Or Enter Data Manually</label>
-                    <textarea id="dataInput"
-                        placeholder="Example: 10, 20, 30, 40"></textarea>
-                </div>
-
-                <div class="actions">
-                    <button id="generateBtn" class="primary hidden">
-                        Generate Report
+            <!-- HEADER -->
+            <header class="top-bar">
+                <div class="header-controls">
+                    <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Toggle Menu">
+                        <i data-lucide="menu"></i>
                     </button>
-                    <button id="downloadBtn" class="secondary hidden">
-                        Download CSV
-                    </button>
+                    <h1>Automated Report Generation & Visualization</h1>
                 </div>
-            </section>
+                <p>Upload data, analyze it automatically, and visualize insights</p>
+                <button id="themeToggle" class="theme-toggle">
+                    🌙 Dark Mode
+                </button>
+            </header>
 
-            <!-- AUTOMATED INSIGHTS -->
-            <section class="card">
-                <h2><i data-lucide="sparkles"></i> Automated Insights</h2>
-                <p id="insightText" class="placeholder">
-                    Insights will be generated automatically after analysis.
-                </p>
-            </section>
+            <!-- ================= DASHBOARD GRID ================= -->
+            <section class="grid">
 
-            <!-- VISUAL ANALYTICS -->
-            <section class="card full">
-                <h2><i data-lucide="bar-chart-3"></i> Visual Analytics</h2>
+                <!-- DATA INPUT -->
+                <section class="card">
+                    <h2><i data-lucide="upload-cloud"></i> Data Input</h2>
 
-                <div class="charts">
-                    <div class="chart-box">
-                        <h3>Bar Chart</h3>
-                        <canvas id="barChart"></canvas>
+                    <div class="form-group">
+                        <label for="fileInput">Upload CSV File</label>
+                        <input type="file" id="fileInput" accept=".csv">
                     </div>
 
-                    <div class="chart-box">
-                        <h3>Pie Chart</h3>
-                        <canvas id="pieChart"></canvas>
+                    <div class="form-group">
+                        <label for="dataInput">Or Enter Data Manually</label>
+                        <textarea id="dataInput" placeholder="Example: 10, 20, 30, 40"></textarea>
                     </div>
-                </div>
+
+                    <div class="actions">
+                        <button id="generateBtn" class="primary hidden">
+                            Generate Report
+                        </button>
+                        <button id="downloadBtn" class="secondary hidden">
+                            Download CSV
+                        </button>
+                    </div>
+                </section>
+
+                <!-- AUTOMATED INSIGHTS -->
+                <section class="card">
+                    <h2><i data-lucide="sparkles"></i> Automated Insights</h2>
+                    <p id="insightText" class="placeholder">
+                        Insights will be generated automatically after analysis.
+                    </p>
+                </section>
+
+                <!-- VISUAL ANALYTICS -->
+                <section class="card full">
+                    <h2><i data-lucide="bar-chart-3"></i> Visual Analytics</h2>
+
+                    <div class="charts">
+                        <div class="chart-box">
+                            <h3>Bar Chart</h3>
+                            <canvas id="barChart"></canvas>
+                        </div>
+
+                        <div class="chart-box">
+                            <h3>Pie Chart</h3>
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- DATA PREVIEW -->
+                <section class="card full">
+                    <h2><i data-lucide="table"></i> Data Preview</h2>
+                    <div id="tableContainer" class="table-wrapper">
+                        <p class="placeholder">No data loaded yet.</p>
+                    </div>
+                </section>
+
             </section>
+        </main>
+    </div>
 
-            <!-- DATA PREVIEW -->
-            <section class="card full">
-                <h2><i data-lucide="table"></i> Data Preview</h2>
-                <div id="tableContainer" class="table-wrapper">
-                    <p class="placeholder">No data loaded yet.</p>
-                </div>
-            </section>
 
-        </section>
-    </main>
-</div>
 
-<!-- ICON INIT -->
-<script>
-    lucide.createIcons();
-</script>
-
-<!-- JS -->
-<script src="script.js"></script>
+    <!-- JS -->
+    <script src="script.js"></script>
 
 </body>
+
 </html>
