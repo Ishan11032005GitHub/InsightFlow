@@ -654,3 +654,42 @@ body.dark-mode tr:hover td {
     opacity: 1;
     transform: translateY(0);
 }
+/* ================= Skeleton Loader ================= */
+
+.skeleton-table {
+    display: none;
+    padding: 1rem;
+}
+
+.skeleton-row {
+    height: 20px;
+    background: linear-gradient(
+        90deg,
+        #e2e8f0 0%,
+        #f1f5f9 50%,
+        #e2e8f0 100%
+    );
+    background-size: 200% 100%;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    animation: skeleton-loading 1.3s infinite ease-in-out;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Dark mode override */
+body.dark-mode .skeleton-row {
+    background: linear-gradient(
+        90deg,
+        #334155 0%,
+        #475569 50%,
+        #334155 100%
+    );
+}

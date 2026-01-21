@@ -130,8 +130,18 @@
                 <section class="card full">
                     <h2><i data-lucide="table"></i> Data Preview</h2>
                     <div id="tableContainer" class="table-wrapper">
-                        <p class="placeholder">No data loaded yet.</p>
-                    </div>
+    <div id="tableSkeleton" class="skeleton-table">
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+    </div>
+
+    <div id="tableContent">
+        <p class="placeholder">No data loaded yet.</p>
+    </div>
+</div>
+
                 </section>
 
             </section>
