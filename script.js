@@ -3,42 +3,67 @@ let barChart = null;
 let pieChart = null;
 let lastReport = null;
 
-// Global references to elements to be used in functions
+// Global references to elements
 let generateBtn;
 let downloadBtn;
-let barDownload;
-let pieDownload;
 let fileInput;
 let dataInput;
 let tableContainer;
 let reportTableElement;
 let insightElement;
 
+// ========================== VALIDATION FUNCTIONS ==========================
+
+// Show validation message
+function showValidation(type, message) {
+    const box = document.getElementById("validationMessage");
+    if (!box) return;
+
+    box.classList.remove("hidden", "validation-error", "validation-success");
+
+    if (type === "error") {
+        box.classList.add("validation-error");
+        box.innerHTML = `<i data-lucide="alert-circle"></i> ${message}`;
+    } else {
+        box.classList.add("validation-success");
+        box.innerHTML = `<i data-lucide="check-circle"></i> ${message}`;
+    }
+
+    box.classList.add("validation-show");
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+// Hide validation
+function hideValidation() {
+    const box = document.getElementById("validationMessage");
+    if (!box) return;
+    box.classList.add("hidden");
+    box.classList.remove("validation-show");
+}
+
+// ============================================================================
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize element references
+
+    // Element references
     generateBtn = document.getElementById("generateBtn");
     downloadBtn = document.getElementById("downloadBtn");
-    barDownload = document.getElementById("barDownload");
-    pieDownload = document.getElementById("pieDownload");
     fileInput = document.getElementById("fileInput");
     dataInput = document.getElementById("dataInput");
     tableContainer = document.getElementById("tableContainer");
     reportTableElement = document.getElementById("reportTable");
     insightElement = document.getElementById("insightText");
 
-    // Event Listeners
+    // Event listeners
     if (fileInput) fileInput.addEventListener("change", handleFile);
     if (dataInput) dataInput.addEventListener("input", handleManualInput);
-    if (generateBtn) generateBtn.addEventListener('click', generateReport);
-    if (downloadBtn) downloadBtn.addEventListener('click', downloadCSV);
-    if (barDownload) barDownload.addEventListener('click', () => downloadChart('barChart'));
-    if (pieDownload) pieDownload.addEventListener('click', () => downloadChart('pieChart'));
+    if (generateBtn) generateBtn.addEventListener("click", generateReport);
+    if (downloadBtn) downloadBtn.addEventListener("click", downloadCSV);
 
-    // --- Dark Mode Logic ---
+    // Dark Mode Logic
     const themeToggleBtn = document.getElementById('themeToggle');
     const body = document.body;
 
-    // Check saved preference
     if (localStorage.getItem('theme') === 'dark') {
         body.classList.add('dark-mode');
         updateThemeIcon(true);
@@ -64,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Mobile Sidebar Logic ---
+    // Mobile Sidebar Logic
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const sidebar = document.querySelector('.sidebar');
 
@@ -75,43 +100,70 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         document.addEventListener('click', (e) => {
-            if (sidebar.classList.contains('open') &&
-                !sidebar.contains(e.target) &&
-                e.target !== mobileMenuBtn) {
+            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== mobileMenuBtn) {
                 sidebar.classList.remove('open');
             }
         });
     }
 
-    // Initialize Icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
 });
 
+// ============================= FILE INPUT HANDLING =============================
+
 function handleFile(event) {
     const file = event.target.files[0];
+    hideValidation();
+
     if (!file) return;
 
-    if (dataInput) dataInput.value = "";
+    if (!file.name.endsWith(".csv")) {
+        showValidation("error", "Please upload a valid CSV file.");
+        return;
+    }
 
     const reader = new FileReader();
     reader.onload = e => {
-        csvData = parseCSV(e.target.result);
-        renderPreview(csvData);
+        try {
+            csvData = parseCSV(e.target.result);
+            renderPreview(csvData);
 
-        if (generateBtn) generateBtn.classList.remove("hidden");
+            showValidation("success", "CSV uploaded successfully!");
+            generateBtn.classList.remove("hidden");
+        } catch {
+            showValidation("error", "Invalid CSV structure. Please check your file.");
+        }
     };
     reader.readAsText(file);
 }
 
+// ============================= MANUAL INPUT HANDLING =============================
+
 function handleManualInput() {
     const input = dataInput.value.trim();
-    if (input !== "") {
-        csvData = null;
-        if (generateBtn) generateBtn.classList.remove("hidden");
+    hideValidation();
+
+    if (input === "") {
+        generateBtn.classList.add("hidden");
+        return;
     }
+
+    const isValid = /^[0-9,\s]+$/.test(input);
+
+    if (!isValid) {
+        showValidation("error", "Only numbers and commas are allowed (Example: 10, 20, 30).");
+        generateBtn.classList.add("hidden");
+        return;
+    }
+
+    showValidation("success", "Valid numeric input detected. You can generate a report.");
+    csvData = null;
+    generateBtn.classList.remove("hidden");
 }
+
+// ============================= CSV PARSER =============================
 
 function parseCSV(text) {
     const lines = text.trim().split("\n");
@@ -121,6 +173,8 @@ function parseCSV(text) {
     );
     return { headers, rows };
 }
+
+// ============================= PREVIEW TABLE =============================
 
 function renderPreview(data) {
     let html = "<table><tr>";
@@ -134,52 +188,61 @@ function renderPreview(data) {
     });
 
     html += "</table>";
-    if (tableContainer) tableContainer.innerHTML = html;
+    tableContainer.innerHTML = html;
 }
 
+// ============================= REPORT GENERATION =============================
+
 function generateReport() {
+    hideValidation();
+
+    if (!csvData && dataInput.value.trim() === "") {
+        showValidation("error", "Please upload a file or enter numeric data.");
+        return;
+    }
+
     let data = csvData;
 
     if (!data) {
-        const input = dataInput.value.trim();
-        if (!input) return alert("Upload CSV or enter numeric data.");
-
-        data = {
-            headers: ["Values"],
-            rows: input.split(",").map(v => [Number(v.trim())])
-        };
+        const values = dataInput.value.split(",").map(v => Number(v.trim()));
+        data = { headers: ["Values"], rows: values.map(v => [v]) };
     }
 
-    // Filter out invalid rows if needed, or check for NaN
     if (data.rows.flat().some(isNaN)) {
-        return alert("Invalid numeric data detected.");
+        showValidation("error", "Input contains invalid numbers.");
+        return;
     }
 
-    const report = [];
+    document.getElementById("loadingSpinner").classList.remove("hidden");
+    generateBtn.disabled = true;
 
-    data.headers.forEach((header, colIndex) => {
-        const values = data.rows.map(r => r[colIndex]);
-        const total = values.reduce((a, b) => a + b, 0);
-        const avg = total / values.length;
-        const max = Math.max(...values);
-        const min = Math.min(...values);
+    setTimeout(() => {
+        const report = [];
 
-        report.push({ header, total, avg, max, min });
-    });
+        data.headers.forEach((header, colIndex) => {
+            const values = data.rows.map(r => r[colIndex]);
+            const total = values.reduce((a, b) => a + b, 0);
+            const avg = total / values.length;
+            const max = Math.max(...values);
+            const min = Math.min(...values);
 
-    renderReportTable(report);
-    generateCharts(report);
-    generateInsights(report);
+            report.push({ header, total, avg, max, min });
+        });
 
-    lastReport = report;
+        renderReportTable(report);
+        generateCharts(report);
+        generateInsights(report);
 
-    if (downloadBtn) downloadBtn.classList.remove("hidden");
-    if (barDownload) barDownload.classList.remove("hidden");
-    if (pieDownload) pieDownload.classList.remove("hidden");
+        lastReport = report;
 
-    // Refresh icons since new content might have icons (though tables don't here)
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+        downloadBtn.classList.remove("hidden");
+
+        document.getElementById("loadingSpinner").classList.add("hidden");
+        generateBtn.disabled = false;
+    }, 800);
 }
+
+// ============================= RENDER REPORT TABLE =============================
 
 function renderReportTable(report) {
     let html =
@@ -196,8 +259,10 @@ function renderReportTable(report) {
     });
 
     html += "</table>";
-    if (reportTableElement) reportTableElement.innerHTML = html;
+    tableContainer.innerHTML = html;
 }
+
+// ============================= CHARTS =============================
 
 function generateCharts(report) {
     const labels = report.map(r => r.header);
@@ -208,39 +273,37 @@ function generateCharts(report) {
     if (pieChart) pieChart.destroy();
 
     const barCtx = document.getElementById("barChart");
-    if (barCtx) {
-        barChart = new Chart(barCtx, {
-            type: "bar",
-            data: {
-                labels,
-                datasets: [{ label: "Average Values", data: averages }]
-            }
-        });
-    }
+    barChart = new Chart(barCtx, {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [{ label: "Average Values", data: averages }]
+        }
+    });
 
     const pieCtx = document.getElementById("pieChart");
-    if (pieCtx) {
-        pieChart = new Chart(pieCtx, {
-            type: "pie",
-            data: {
-                labels,
-                datasets: [{ data: totals }]
-            }
-        });
-    }
+    pieChart = new Chart(pieCtx, {
+        type: "pie",
+        data: {
+            labels,
+            datasets: [{ data: totals }]
+        }
+    });
 }
+
+// ============================= INSIGHTS =============================
 
 function generateInsights(report) {
     const avgOfAvgs =
         report.reduce((s, r) => s + r.avg, 0) / report.length;
 
-    if (insightElement) {
-        insightElement.innerText =
-            avgOfAvgs >= 75
-                ? "Overall dataset performance is strong across columns."
-                : "Overall dataset performance shows room for improvement.";
-    }
+    insightElement.innerText =
+        avgOfAvgs >= 75
+            ? "Overall dataset performance is strong across columns."
+            : "Overall dataset performance shows room for improvement.";
 }
+
+// ============================= CSV DOWNLOAD =============================
 
 function downloadCSV() {
     if (!lastReport) return;
@@ -259,13 +322,4 @@ function downloadCSV() {
     a.click();
 
     URL.revokeObjectURL(url);
-}
-
-function downloadChart(canvasId) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
-    const link = document.createElement("a");
-    link.download = `${canvasId}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
 }
