@@ -8,12 +8,38 @@ let generateBtn;
 let downloadBtn;
 let fileInput;
 let dataInput;
-let tableContainer;
 let insightElement;
+
+// ======================= TOAST NOTIFICATION SYSTEM =======================
+
+function showToast(type, message) {
+    const container = document.getElementById("toastContainer");
+    if (!container) return;
+
+    const toast = document.createElement("div");
+    toast.classList.add("toast");
+
+    if (type === "success") toast.classList.add("toast-success");
+    else if (type === "error") toast.classList.add("toast-error");
+    else toast.classList.add("toast-info");
+
+    toast.innerHTML = `
+        <i data-lucide="${type === "error" ? "alert-triangle" :
+            type === "success" ? "check-circle" : "info"}"></i>
+        <span>${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    lucide?.createIcons();
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3500);
+}
 
 // ========================== VALIDATION UI ===============================
 
-// Show validation box
 function showValidation(type, message) {
     const box = document.getElementById("validationMessage");
     if (!box) return;
@@ -23,20 +49,21 @@ function showValidation(type, message) {
     if (type === "error") {
         box.classList.add("validation-error");
         box.innerHTML = `<i data-lucide="alert-circle"></i> ${message}`;
+        showToast("error", message);
     } else {
         box.classList.add("validation-success");
         box.innerHTML = `<i data-lucide="check-circle"></i> ${message}`;
+        showToast("success", message);
     }
 
     box.classList.add("validation-show");
-
-    if (typeof lucide !== "undefined") lucide.createIcons();
+    lucide?.createIcons();
 }
 
-// Hide validation
 function hideValidation() {
     const box = document.getElementById("validationMessage");
     if (!box) return;
+
     box.classList.add("hidden");
     box.classList.remove("validation-show");
 }
@@ -57,38 +84,36 @@ function hideTableSkeleton() {
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Assign element references
     generateBtn = document.getElementById("generateBtn");
     downloadBtn = document.getElementById("downloadBtn");
     fileInput = document.getElementById("fileInput");
     dataInput = document.getElementById("dataInput");
-    tableContainer = document.getElementById("tableContainer");
     insightElement = document.getElementById("insightText");
 
-    // Event Listeners
     fileInput?.addEventListener("change", handleFile);
     dataInput?.addEventListener("input", handleManualInput);
     generateBtn?.addEventListener("click", generateReport);
     downloadBtn?.addEventListener("click", downloadCSV);
 
-    // ---------------- Dark Mode Toggle ----------------
+    // ---------------- DARK MODE ----------------
+
     const themeToggleBtn = document.getElementById("themeToggle");
     const body = document.body;
 
     if (localStorage.getItem("theme") === "dark") {
         body.classList.add("dark-mode");
-        updateThemeIcon(true);
+        updateDarkIcon(true);
     }
 
     themeToggleBtn?.addEventListener("click", () => {
         body.classList.toggle("dark-mode");
         const isDark = body.classList.contains("dark-mode");
+
         localStorage.setItem("theme", isDark ? "dark" : "light");
-        updateThemeIcon(isDark);
+        updateDarkIcon(isDark);
     });
 
-    function updateThemeIcon(isDark) {
-        if (!themeToggleBtn) return;
+    function updateDarkIcon(isDark) {
         themeToggleBtn.innerHTML = isDark
             ? '<i data-lucide="sun"></i> Light Mode'
             : '<i data-lucide="moon"></i> Dark Mode';
@@ -96,7 +121,26 @@ document.addEventListener("DOMContentLoaded", () => {
         lucide?.createIcons();
     }
 
-    // ---------------- Mobile Sidebar ----------------
+    // ---------------- MULTI-THEME COLOR SWITCHER ----------------
+
+    const themeButtons = document.querySelectorAll(".theme-btn");
+    const savedTheme = localStorage.getItem("colorTheme") || "blue";
+
+    document.documentElement.setAttribute("data-theme", savedTheme);
+
+    themeButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const theme = btn.getAttribute("data-theme");
+
+            document.documentElement.setAttribute("data-theme", theme);
+            localStorage.setItem("colorTheme", theme);
+
+            showToast("info", `${theme.toUpperCase()} theme applied`);
+        });
+    });
+
+    // ---------------- MOBILE SIDEBAR ----------------
+
     const mobileMenuBtn = document.getElementById("mobileMenuBtn");
     const sidebar = document.querySelector(".sidebar");
 
@@ -141,7 +185,7 @@ function handleFile(event) {
             showValidation("success", "CSV uploaded successfully.");
             generateBtn.classList.remove("hidden");
 
-        } catch (err) {
+        } catch {
             showValidation("error", "Invalid CSV structure.");
         }
     };
@@ -165,7 +209,7 @@ function handleManualInput() {
     const valid = /^[0-9,\s]+$/.test(input);
 
     if (!valid) {
-        showValidation("error", "Only numbers and commas are allowed (Example: 10, 20, 30)");
+        showValidation("error", "Only numbers and commas allowed.");
         generateBtn.classList.add("hidden");
         return;
     }
@@ -176,34 +220,30 @@ function handleManualInput() {
 }
 
 // ==========================================================================
-// CSV PARSING
+// CSV PARSER
 // ==========================================================================
 
 function parseCSV(text) {
     const lines = text.trim().split("\n");
-
-    const headers = lines[0].split(",").map((h) => h.trim());
-
-    const rows = lines.slice(1).map((row) =>
-        row.split(",").map((v) => Number(v.trim()))
+    const headers = lines[0].split(",").map(h => h.trim());
+    const rows = lines.slice(1).map(line =>
+        line.split(",").map(v => Number(v.trim()))
     );
-
     return { headers, rows };
 }
 
 // ==========================================================================
-// TABLE PREVIEW
+// PREVIEW TABLE
 // ==========================================================================
 
 function renderPreview(data) {
     let html = "<table><tr>";
-
-    data.headers.forEach((h) => (html += `<th>${h}</th>`));
+    data.headers.forEach(h => html += `<th>${h}</th>`);
     html += "</tr>";
 
-    data.rows.forEach((row) => {
+    data.rows.forEach(row => {
         html += "<tr>";
-        row.forEach((cell) => (html += `<td>${cell}</td>`));
+        row.forEach(cell => html += `<td>${cell}</td>`);
         html += "</tr>";
     });
 
@@ -213,7 +253,7 @@ function renderPreview(data) {
 }
 
 // ==========================================================================
-// REPORT GENERATION (WITH SKELETON)
+// REPORT GENERATION
 // ==========================================================================
 
 function generateReport() {
@@ -224,17 +264,18 @@ function generateReport() {
         return;
     }
 
-    showTableSkeleton(); // << Skeleton START
+    showTableSkeleton();
 
     document.getElementById("loadingSpinner").classList.remove("hidden");
     generateBtn.disabled = true;
 
     setTimeout(() => {
+
         let data = csvData;
 
         if (!data) {
-            const values = dataInput.value.split(",").map((v) => Number(v.trim()));
-            data = { headers: ["Values"], rows: values.map((v) => [v]) };
+            const values = dataInput.value.split(",").map(v => Number(v.trim()));
+            data = { headers: ["Values"], rows: values.map(v => [v]) };
         }
 
         if (data.rows.flat().some(isNaN)) {
@@ -245,7 +286,7 @@ function generateReport() {
         const report = [];
 
         data.headers.forEach((header, colIndex) => {
-            const values = data.rows.map((row) => row[colIndex]);
+            const values = data.rows.map(row => row[colIndex]);
 
             const total = values.reduce((a, b) => a + b, 0);
             const avg = total / values.length;
@@ -255,14 +296,17 @@ function generateReport() {
             report.push({ header, total, avg, max, min });
         });
 
-        hideTableSkeleton(); // << Skeleton END
+        hideTableSkeleton();
 
         renderReportTable(report);
         generateCharts(report);
         generateInsights(report);
 
         lastReport = report;
+
         downloadBtn.classList.remove("hidden");
+
+        showToast("success", "Report generated successfully!");
 
         document.getElementById("loadingSpinner").classList.add("hidden");
         generateBtn.disabled = false;
@@ -271,14 +315,14 @@ function generateReport() {
 }
 
 // ==========================================================================
-// REPORT TABLE RENDERING
+// RENDER TABLE
 // ==========================================================================
 
 function renderReportTable(report) {
     let html =
         "<table><tr><th>Column</th><th>Total</th><th>Average</th><th>Max</th><th>Min</th></tr>";
 
-    report.forEach((r) => {
+    report.forEach(r => {
         html += `<tr>
             <td>${r.header}</td>
             <td>${r.total}</td>
@@ -289,7 +333,6 @@ function renderReportTable(report) {
     });
 
     html += "</table>";
-
     document.getElementById("tableContent").innerHTML = html;
 }
 
@@ -298,9 +341,9 @@ function renderReportTable(report) {
 // ==========================================================================
 
 function generateCharts(report) {
-    const labels = report.map((r) => r.header);
-    const averages = report.map((r) => r.avg);
-    const totals = report.map((r) => r.total);
+    const labels = report.map(r => r.header);
+    const averages = report.map(r => r.avg);
+    const totals = report.map(r => r.total);
 
     if (barChart) barChart.destroy();
     if (pieChart) pieChart.destroy();
@@ -327,11 +370,10 @@ function generateCharts(report) {
 // ==========================================================================
 
 function generateInsights(report) {
-    const overallAvg =
-        report.reduce((sum, r) => sum + r.avg, 0) / report.length;
+    const avgOfAvgs = report.reduce((s, r) => s + r.avg, 0) / report.length;
 
     insightElement.innerText =
-        overallAvg >= 75
+        avgOfAvgs >= 75
             ? "Overall dataset performance is strong."
             : "Dataset performance shows room for improvement.";
 }
@@ -345,7 +387,7 @@ function downloadCSV() {
 
     let csv = "Column,Total,Average,Maximum,Minimum\n";
 
-    lastReport.forEach((r) => {
+    lastReport.forEach(r => {
         csv += `${r.header},${r.total},${r.avg.toFixed(2)},${r.max},${r.min}\n`;
     });
 

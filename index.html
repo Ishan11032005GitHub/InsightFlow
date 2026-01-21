@@ -21,6 +21,9 @@
 
 <body>
 
+    <!-- ======================= TOAST CONTAINER (NEW) ======================= -->
+    <div id="toastContainer" class="toast-container"></div>
+
     <div class="dashboard">
 
         <!-- ================= SIDEBAR ================= -->
@@ -57,12 +60,24 @@
                     <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Toggle Menu">
                         <i data-lucide="menu"></i>
                     </button>
+
                     <h1>Automated Report Generation & Visualization</h1>
                 </div>
+
                 <p>Upload data, analyze it automatically, and visualize insights</p>
+
+                <!-- THEME TOGGLE -->
                 <button id="themeToggle" class="theme-toggle">
                     🌙 Dark Mode
                 </button>
+
+                <!-- ========== MULTI-THEME SWITCHER (NEW) ========== -->
+                <div class="theme-selector">
+                    <button class="theme-btn" data-theme="blue">Blue</button>
+                    <button class="theme-btn" data-theme="green">Green</button>
+                    <button class="theme-btn" data-theme="purple">Purple</button>
+                </div>
+
             </header>
 
             <!-- ================= DASHBOARD GRID ================= -->
@@ -91,12 +106,8 @@
                         </button>
                     </div>
 
-                    <!-- ============= VALIDATION MESSAGE BOX (ADDED) ============== -->
-                    <div id="validationMessage" class="validation-message hidden">
-                        <!-- Error / success messages appear here -->
-                    </div>
-                    <!-- ============================================================ -->
-
+                    <!-- VALIDATION MESSAGE BOX (NEW) -->
+                    <div id="validationMessage" class="validation-message hidden"></div>
                 </section>
 
                 <!-- AUTOMATED INSIGHTS -->
@@ -112,7 +123,6 @@
                     <h2><i data-lucide="bar-chart-3"></i> Visual Analytics</h2>
 
                     <div class="charts">
-
                         <div class="chart-box">
                             <h3>Bar Chart</h3>
                             <canvas id="barChart"></canvas>
@@ -122,25 +132,29 @@
                             <h3>Pie Chart</h3>
                             <canvas id="pieChart"></canvas>
                         </div>
-
                     </div>
                 </section>
 
                 <!-- DATA PREVIEW -->
                 <section class="card full">
                     <h2><i data-lucide="table"></i> Data Preview</h2>
-                    <div id="tableContainer" class="table-wrapper">
-    <div id="tableSkeleton" class="skeleton-table">
-        <div class="skeleton-row"></div>
-        <div class="skeleton-row"></div>
-        <div class="skeleton-row"></div>
-        <div class="skeleton-row"></div>
-    </div>
 
-    <div id="tableContent">
-        <p class="placeholder">No data loaded yet.</p>
-    </div>
-</div>
+                    <div id="tableContainer" class="table-wrapper">
+
+                        <!-- SKELETON LOADER (NEW) -->
+                        <div id="tableSkeleton" class="skeleton-table">
+                            <div class="skeleton-row"></div>
+                            <div class="skeleton-row"></div>
+                            <div class="skeleton-row"></div>
+                            <div class="skeleton-row"></div>
+                        </div>
+
+                        <!-- REAL TABLE / CONTENT -->
+                        <div id="tableContent">
+                            <p class="placeholder">No data loaded yet.</p>
+                        </div>
+
+                    </div>
 
                 </section>
 
@@ -150,7 +164,6 @@
 
     <!-- JS -->
     <script src="script.js"></script>
-
 </body>
 
 </html>

@@ -693,3 +693,97 @@ body.dark-mode .skeleton-row {
         #334155 100%
     );
 }
+/* ================= MULTI THEME SYSTEM ================= */
+
+/* Blue (Default) */
+[data-theme="blue"] {
+    --primary-hue: 220;
+    --accent-hue: 260;
+}
+
+/* Green Theme */
+[data-theme="green"] {
+    --primary-hue: 150;  /* Green */
+    --accent-hue: 170;
+}
+
+/* Purple Theme */
+[data-theme="purple"] {
+    --primary-hue: 280; /* Purple */
+    --accent-hue: 310;
+}
+
+/* Theme Buttons */
+.theme-selector {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.theme-btn {
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+}
+
+.theme-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+/* ======================= TOAST NOTIFICATIONS ======================= */
+
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 2000;
+}
+
+.toast {
+    min-width: 260px;
+    max-width: 340px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    animation: slideIn 0.4s ease, fadeOut 0.4s ease 3s forwards;
+    opacity: 0.95;
+}
+
+.toast i {
+    width: 22px;
+    height: 22px;
+}
+
+/* Colors */
+.toast-success {
+    background: #22c55e;  /* Green */
+}
+.toast-error {
+    background: #ef4444; /* Red */
+}
+.toast-info {
+    background: #3b82f6; /* Blue */
+}
+
+/* Animations */
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 0.95; }
+}
+
+@keyframes fadeOut {
+    to { opacity: 0; transform: translateX(100%); }
+}
