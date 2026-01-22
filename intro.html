@@ -5,11 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InsightFlow | Neon Analytics</title>
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
+  <!-- Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- CSS -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
@@ -18,6 +22,7 @@
 </head>
 
 <body>
+
   <div class="ambient-layer"></div>
 
   <!-- Topbar -->
@@ -35,10 +40,10 @@
       </nav>
 
       <div class="top-actions">
-        <button class="icon-btn" id="themeToggle" title="Toggle theme">
+        <button class="icon-btn" id="themeToggle">
           <i data-lucide="moon"></i>
         </button>
-        <a class="btn btn-outline" href="auth.html" id="signInBtn">
+        <a class="btn btn-outline" href="auth.html">
           <i data-lucide="user"></i>
           <span>Sign in</span>
         </a>
@@ -49,6 +54,7 @@
   <!-- Hero -->
   <section class="hero" id="demo">
     <div class="hero-inner">
+
       <div class="badge glass">
         <i data-lucide="sparkles"></i>
         <span>Automated Analytics + Document Chat</span>
@@ -60,8 +66,8 @@
       </h1>
 
       <p class="hero-sub">
-        Upload CSV data for instant analytics & charts, or chat with PDFs (UI-ready for RAG).
-        Clean UI, sessions, export, and auth-ready for MERN.
+        Upload CSV data for instant analytics & charts, or chat with PDFs.
+        Built with MERN-ready auth and session-based workflows.
       </p>
 
       <div class="hero-cta">
@@ -69,7 +75,6 @@
           Get Started
           <i data-lucide="arrow-right"></i>
         </a>
-
         <a class="btn btn-outline btn-lg" href="#features">
           Learn More
           <i data-lucide="info"></i>
@@ -79,58 +84,53 @@
       <div class="hero-stats">
         <div class="stat glass">
           <div class="stat-val gradient-text">2 Modes</div>
-          <div class="stat-label">Analysis + PDF Chat</div>
+          <div class="stat-label">Analytics + PDF Chat</div>
         </div>
         <div class="stat glass">
           <div class="stat-val gradient-text">Exports</div>
-          <div class="stat-label">CSV + PNG Charts</div>
+          <div class="stat-label">CSV + Charts</div>
         </div>
         <div class="stat glass">
           <div class="stat-val gradient-text">Sessions</div>
-          <div class="stat-label">Local Memory Ready</div>
+          <div class="stat-label">Local Memory</div>
         </div>
       </div>
+
     </div>
 
-    <div class="floating-layer" aria-hidden="true">
+    <div class="floating-layer">
       <div class="float-card a glass"></div>
       <div class="float-card b glass"></div>
       <div class="float-card c glass"></div>
     </div>
 
-    <div class="hero-fade" aria-hidden="true"></div>
+    <div class="hero-fade"></div>
   </section>
 
   <!-- Features -->
   <section class="section" id="features">
     <div class="section-head">
       <h2>Features</h2>
-      <p>What you ship: real UI + real analytics + real auth flow.</p>
+      <p>What you actually ship — not buzzwords.</p>
     </div>
 
     <div class="grid-3">
       <div class="glass card hover-lift">
-        <div class="card-top">
-          <div class="chip"><i data-lucide="upload-cloud"></i></div>
-          <h3>CSV Analytics</h3>
-        </div>
-        <p>Upload CSV or paste numbers. Validate, preview, compute stats and charts.</p>
+        <div class="chip"><i data-lucide="upload-cloud"></i></div>
+        <h3>CSV Analytics</h3>
+        <p>Upload data, validate, compute stats, generate charts.</p>
       </div>
 
       <div class="glass card hover-lift">
-        <div class="card-top">
-          <div class="chip"><i data-lucide="file-text"></i></div>
-          <h3>Chat with PDF UI</h3>
-        </div>
-        <p>PDF upload + chat UI + session list. Backend can plug in RAG later.</p>
+        <div class="chip"><i data-lucide="file-text"></i></div>
+        <h3>Chat with PDF</h3>
+        <p>Session-based document chat UI (RAG-ready).</p>
       </div>
 
       <div class="glass card hover-lift">
-        <div class="card-top">
-          <div class="chip"><i data-lucide="shield"></i></div>
-          <h3>MERN Auth Ready</h3>
-        </div>
-        <p>Signup/Login with email + username + password. Token-based route protection.</p>
+        <div class="chip"><i data-lucide="shield"></i></div>
+        <h3>Secure Auth</h3>
+        <p>Email + username login with protected routes.</p>
       </div>
     </div>
   </section>
@@ -139,25 +139,26 @@
   <section class="section" id="workflow">
     <div class="section-head">
       <h2>Workflow</h2>
-      <p>Simple pipeline that you can defend in a viva without BS.</p>
+      <p>Simple, defensible, production-like flow.</p>
     </div>
 
     <div class="grid-5">
-      <div class="glass step hover-lift"><i data-lucide="log-in"></i><span>Auth</span></div>
-      <div class="glass step hover-lift"><i data-lucide="upload"></i><span>Upload</span></div>
-      <div class="glass step hover-lift"><i data-lucide="calculator"></i><span>Compute</span></div>
-      <div class="glass step hover-lift"><i data-lucide="bar-chart-3"></i><span>Visualize</span></div>
-      <div class="glass step hover-lift"><i data-lucide="download"></i><span>Export</span></div>
+      <div class="glass step"><i data-lucide="log-in"></i><span>Auth</span></div>
+      <div class="glass step"><i data-lucide="upload"></i><span>Upload</span></div>
+      <div class="glass step"><i data-lucide="calculator"></i><span>Analyze</span></div>
+      <div class="glass step"><i data-lucide="bar-chart-3"></i><span>Visualize</span></div>
+      <div class="glass step"><i data-lucide="download"></i><span>Export</span></div>
     </div>
   </section>
 
   <footer class="footer">
     <div class="footer-inner">
-      <div class="muted">InsightFlow • SE Lab Project</div>
-      <div class="muted">Frontend + MERN-ready Auth + Modes</div>
+      <span class="muted">InsightFlow • Software Engineering Lab</span>
     </div>
   </footer>
 
   <script src="js/intro.js"></script>
+  <script>lucide.createIcons();</script>
+
 </body>
 </html>
