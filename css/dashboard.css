@@ -1,0 +1,49 @@
+.nav-item{
+  padding:10px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  font-weight:800;
+  cursor:pointer;
+}
+
+.nav-item.active{
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border:none;
+}
+
+.charts{
+  display:grid;
+  grid-template-columns: repeat(2,1fr);
+  gap:14px;
+}
+
+.chart-box{
+  padding:12px;
+  border-radius:14px;
+  border:1px solid var(--border);
+}
+
+.chat-area{
+  height:420px;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.bubble{
+  padding:10px 12px;
+  border-radius:14px;
+  max-width:75%;
+}
+
+.bubble.user{
+  align-self:flex-end;
+  background: linear-gradient(135deg,
+    rgba(87,184,255,0.3),
+    rgba(185,107,255,0.3));
+}
+
+.bubble.bot{
+  background: rgba(255,255,255,0.08);
+}

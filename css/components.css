@@ -1,0 +1,52 @@
+.btn{
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background: var(--panel2);
+  font-weight:700;
+  cursor:pointer;
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+}
+
+.btn-primary{
+  border:none;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+}
+
+.btn-outline{
+  background: transparent;
+}
+
+.input, .textarea, .input-file{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+
+.table-wrap{
+  border-radius:14px;
+  border:1px solid var(--border);
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th, td{
+  padding:10px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.toast-container{
+  position:fixed;
+  top:18px;
+  right:18px;
+  z-index:999;
+}

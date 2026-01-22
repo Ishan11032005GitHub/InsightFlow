@@ -1,0 +1,30 @@
+.auth-wrap{
+  display:flex;
+  justify-content:center;
+  padding:80px 18px;
+}
+
+.auth-card{
+  width:min(500px,100%);
+  padding:18px;
+}
+
+.tabs{
+  display:flex;
+  gap:10px;
+}
+
+.tab{
+  flex:1;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  cursor:pointer;
+  font-weight:800;
+}
+
+.tab.active{
+  background: linear-gradient(135deg,
+    rgba(87,184,255,0.25),
+    rgba(185,107,255,0.25));
+}
