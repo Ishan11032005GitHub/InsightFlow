@@ -1,0 +1,23 @@
+:root {
+  --bg: #0b0f19;
+  --surface: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.12);
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --primary: #6366f1;
+  --accent: #22d3ee;
+  --radius: 14px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at top, #111827, #020617);
+  color: var(--text);
+  overflow-x: hidden;
+}
