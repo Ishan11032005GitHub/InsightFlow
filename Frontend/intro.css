@@ -1,0 +1,58 @@
+/* ========== INTRO / LANDING ========== */
+
+.ambient-layer{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  background:
+    radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--primary) 28%, transparent), transparent 45%),
+    radial-gradient(circle at 80% 70%, color-mix(in srgb, var(--accent) 28%, transparent), transparent 45%);
+  animation: floatBg 14s ease-in-out infinite alternate;
+}
+
+@keyframes floatBg{
+  from{ transform:translateY(-20px); }
+  to{ transform:translateY(20px); }
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  padding:14px 18px;
+  z-index:50;
+}
+
+.topbar-inner{
+  max-width:1100px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.hero{
+  padding:78px 18px 60px;
+  text-align:center;
+}
+
+.hero-title{
+  font-size: clamp(36px, 5vw, 58px);
+  font-weight:900;
+}
+
+.gradient-text{
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background-clip:text;
+  color:transparent;
+}
+
+.hero-stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:24px;
+}
+
+.section{
+  padding:56px 18px;
+}
