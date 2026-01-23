@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InsightFlow | Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+  <div class="ambient-layer"></div>
+
+  <!-- Toast -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar glass">
+      <div class="logo">
+        <i data-lucide="zap"></i>
+        <span>InsightFlow</span>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-view="analysis">
+          <i data-lucide="sigma"></i> Data Analysis
+        </button>
+        <button class="nav-item" data-view="pdfchat">
+          <i data-lucide="file-text"></i> Chat with PDF
+        </button>
+        <button class="nav-item" data-view="sessions">
+          <i data-lucide="layers"></i> Sessions
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="muted tiny">Signed in as</div>
+        <div id="userLabel" class="user-label">—</div>
+
+        <div class="side-actions">
+          <button class="icon-btn" id="themeToggle" title="Toggle theme">
+            <i data-lucide="moon"></i>
+          </button>
+          <button class="btn btn-outline btn-sm" id="logoutBtn">
+            <i data-lucide="log-out"></i> Logout
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="content">
+      <header class="page-head glass">
+        <div>
+          <h1 id="pageTitle">Data Analysis</h1>
+          <p class="muted" id="pageSub">Upload CSV or paste numeric values. Export charts and report.</p>
+        </div>
+
+        <div class="head-actions">
+          <button class="btn btn-outline btn-sm" id="newSessionBtn">
+            <i data-lucide="plus"></i> New Session
+          </button>
+          <button class="btn btn-outline btn-sm" id="clearSessionsBtn">
+            <i data-lucide="trash-2"></i> Clear Sessions
+          </button>
+        </div>
+      </header>
+
+      <!-- ================= VIEW: ANALYSIS ================= -->
+      <section id="view-analysis" class="view active">
+        <div class="grid-2">
+          <section class="glass card">
+            <h2><i data-lucide="upload-cloud"></i> Data Input</h2>
+
+            <div id="validationMessage" class="validation-message hidden"></div>
+
+            <div class="form-group">
+              <label class="label">Upload CSV</label>
+              <input type="file" id="fileInput" accept=".csv" class="input-file"/>
+            </div>
+
+            <div class="form-group">
+              <label class="label">Or paste numbers</label>
+              <textarea id="dataInput" class="textarea" placeholder="Example: 10, 20, 30, 40"></textarea>
+            </div>
+
+            <div class="row">
+              <button id="generateBtn" class="btn btn-primary">
+                <i data-lucide="sparkles"></i> Generate Report
+              </button>
+              <button id="downloadBtn" class="btn btn-outline hidden">
+                <i data-lucide="download"></i> Download CSV
+              </button>
+            </div>
+
+            <div id="loadingSpinner" class="loading hidden">
+              <div class="spinner"></div>
+              <span>Generating report...</span>
+            </div>
+
+            <div id="tableSkeleton" class="skeleton-table">
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+              <div class="skeleton-row"></div>
+            </div>
+          </section>
+
+          <section class="glass card">
+            <h2><i data-lucide="sparkles"></i> Automated Insights</h2>
+            <p id="insightText" class="insight placeholder">
+              Generate a report to see insights.
+            </p>
+
+            <div class="divider"></div>
+
+            <h3 class="h3"><i data-lucide="table"></i> Preview / Report Table</h3>
+            <div class="table-wrap" id="tableContainer">
+              <div id="tableContent">
+                <p class="placeholder">No data loaded yet.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <section class="glass card" style="margin-top:16px;">
+          <div class="row between">
+            <h2><i data-lucide="bar-chart-3"></i> Visual Analytics</h2>
+            <div class="row">
+              <button id="barDownload" class="btn btn-outline btn-sm hidden">
+                <i data-lucide="image-down"></i> Bar PNG
+              </button>
+              <button id="pieDownload" class="btn btn-outline btn-sm hidden">
+                <i data-lucide="image-down"></i> Pie PNG
+              </button>
+            </div>
+          </div>
+
+          <div class="charts">
+            <div class="chart-box">
+              <h3>Bar Chart</h3>
+              <canvas id="barChart"></canvas>
+            </div>
+            <div class="chart-box">
+              <h3>Pie Chart</h3>
+              <canvas id="pieChart"></canvas>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- ================= VIEW: PDF CHAT ================= -->
+      <section id="view-pdfchat" class="view">
+        <div class="grid-2">
+          <section class="glass card">
+            <h2><i data-lucide="file-text"></i> Upload PDF</h2>
+            <p class="muted">UI only here. Plug in RAG backend later.</p>
+
+            <input type="file" id="pdfInput" accept="application/pdf" class="input-file"/>
+
+            <div class="divider"></div>
+
+            <h3 class="h3"><i data-lucide="message-square"></i> Ask a Question</h3>
+            <textarea id="chatPrompt" class="textarea" placeholder="Ask something about the PDF..."></textarea>
+            <button id="sendChatBtn" class="btn btn-primary btn-block">
+              <i data-lucide="send"></i> Send
+            </button>
+
+            <div class="tiny muted">
+              Backend endpoint (optional): <code>POST /api/rag/chat</code>
+            </div>
+          </section>
+
+          <section class="glass card chat-card">
+            <div class="row between">
+              <h2><i data-lucide="bot"></i> Chat</h2>
+              <button id="clearChatBtn" class="btn btn-outline btn-sm">
+                <i data-lucide="trash-2"></i> Clear
+              </button>
+            </div>
+
+            <div id="chatArea" class="chat-area">
+              <div class="placeholder">Upload a PDF and ask a question.</div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- ================= VIEW: SESSIONS ================= -->
+      <section id="view-sessions" class="view">
+        <section class="glass card">
+          <div class="row between">
+            <h2><i data-lucide="layers"></i> Sessions</h2>
+            <div class="row">
+              <button class="btn btn-outline btn-sm" id="exportSessionsBtn">
+                <i data-lucide="download"></i> Export JSON
+              </button>
+            </div>
+          </div>
+
+          <div id="sessionList" class="session-list">
+            <div class="muted">No sessions yet.</div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

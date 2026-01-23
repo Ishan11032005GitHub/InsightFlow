@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InsightFlow | Auth</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="auth.css">
+</head>
+
+<body>
+  <div class="ambient-layer"></div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="intro.html">
+        <span class="brand-dot"></span>
+        <span class="brand-name">InsightFlow</span>
+      </a>
+
+      <div class="top-actions">
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">
+          <i data-lucide="moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth-wrap">
+    <div class="auth-card glass">
+      <div class="auth-head">
+        <h1>Account</h1>
+        <p class="muted">Signup / Signin (email + username + password)</p>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="signin">Sign in</button>
+        <button class="tab" data-tab="signup">Sign up</button>
+      </div>
+
+      <div id="authMsg" class="validation-message hidden"></div>
+
+      <!-- SIGN IN -->
+      <form id="signinForm" class="form tabpane active" data-pane="signin">
+        <label class="label">Email</label>
+        <input class="input" type="email" id="signinEmail" required placeholder="you@example.com" />
+
+        <label class="label">Password</label>
+        <input class="input" type="password" id="signinPassword" minlength="6" required placeholder="••••••••" />
+
+        <button class="btn btn-primary btn-block" type="submit">
+          <i data-lucide="log-in"></i> Sign in
+        </button>
+
+        <div class="tiny muted">
+          Backend endpoint: <code>POST /api/auth/login</code>
+        </div>
+      </form>
+
+      <!-- SIGN UP -->
+      <form id="signupForm" class="form tabpane" data-pane="signup">
+        <label class="label">Username</label>
+        <input class="input" type="text" id="signupUsername" required placeholder="ishan_tiwari" />
+
+        <label class="label">Email</label>
+        <input class="input" type="email" id="signupEmail" required placeholder="you@example.com" />
+
+        <label class="label">Password</label>
+        <input class="input" type="password" id="signupPassword" minlength="6" required placeholder="Min 6 chars" />
+
+        <button class="btn btn-primary btn-block" type="submit">
+          <i data-lucide="user-plus"></i> Create account
+        </button>
+
+        <div class="tiny muted">
+          Backend endpoint: <code>POST /api/auth/register</code>
+        </div>
+      </form>
+
+      <div class="divider"></div>
+
+      <a class="btn btn-outline btn-block" href="intro.html">
+        <i data-lucide="arrow-left"></i> Back
+      </a>
+    </div>
+  </main>
+
+  <script src="auth.js"></script>
+</body>
+</html>
