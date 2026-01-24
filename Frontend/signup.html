@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Sign Up | InsightFlow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="auth.css">
+</head>
+
+<body>
+<div class="ambient-layer"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="intro.html">
+      <span class="brand-dot"></span>
+      <span class="brand-name">InsightFlow</span>
+    </a>
+
+    <div class="top-actions">
+      <button class="icon-btn" id="themeToggle" title="Toggle theme">
+        <i data-lucide="moon"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="auth-wrap">
+  <div class="auth-card glass">
+    <div class="auth-head">
+      <h1>Create Account</h1>
+      <p class="muted">Sign up to get started</p>
+    </div>
+
+    <div id="authMsg" class="validation-message hidden"></div>
+
+    <form id="signupForm" class="form">
+      <label class="label">Username</label>
+      <input class="input" type="text" id="signupUsername" required placeholder="ishan_tiwari" />
+
+      <label class="label">Email</label>
+      <input class="input" type="email" id="signupEmail" required placeholder="you@example.com" />
+
+      <label class="label">Password</label>
+      <input class="input" type="password" id="signupPassword" minlength="6" required placeholder="Min 6 chars" />
+
+      <button class="btn btn-primary btn-block" type="submit">
+        <i data-lucide="user-plus"></i> Create account
+      </button>
+    </form>
+
+    <div class="divider"></div>
+
+    <p class="muted">Already registered? <a href="signin.html">Sign in</a></p>
+  </div>
+</main>
+
+<script src="auth.js"></script>
+</body>
+</html>
