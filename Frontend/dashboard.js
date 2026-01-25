@@ -1,6 +1,6 @@
 (function(){
   // ======= CONFIG =======
-  const API_BASE = "http://localhost:5000"; // change if needed
+    const API_BASE = "http://localhost:6001"; // change if needed
 
   // ======= AUTH GUARD =======
   const token = localStorage.getItem("token");

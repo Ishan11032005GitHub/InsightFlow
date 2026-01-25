@@ -1,4 +1,4 @@
-(function(){
+(async function(){
   const html = document.documentElement;
   const toggle = document.getElementById("themeToggle");
 
@@ -9,8 +9,54 @@
   const signinForm = document.getElementById("signinForm");
   const signupForm = document.getElementById("signupForm");
 
-  // Change this if your backend runs elsewhere
-  const API_BASE = "http://localhost:5000";
+  // Auto-detect backend API base by probing localhost ports (6000-6010)
+  let API_BASE = null;
+
+  async function detectApiBase() {
+    // Probe configured port range starting at 6000.
+      const start = 6001;
+    const end = 6011;
+    for (let p = start; p <= end; p++) {
+      const url = `http://localhost:${p}/api/config`;
+      try {
+        // timeout using AbortController
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), 1500);
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        if (!res.ok) continue;
+        const data = await res.json().catch(() => null);
+        if (data && data.apiBase) return data.apiBase;
+        return `http://localhost:${p}`;
+      } catch (err) {
+        // continue probing
+        continue;
+      }
+    }
+    // fallback
+      return 'http://localhost:6001';
+  }
+
+  API_BASE = await detectApiBase();
+  console.info('Detected API_BASE ->', API_BASE);
+
+  // Add a small debug badge to the page so it's visible which API base was detected
+  try {
+    const badge = document.createElement('div');
+    badge.id = 'api-base-badge';
+    badge.style.position = 'fixed';
+    badge.style.right = '12px';
+    badge.style.bottom = '12px';
+    badge.style.background = 'rgba(0,0,0,0.6)';
+    badge.style.color = '#fff';
+    badge.style.padding = '6px 10px';
+    badge.style.borderRadius = '6px';
+    badge.style.zIndex = 9999;
+    badge.style.fontSize = '12px';
+    badge.style.boxShadow = '0 2px 8px rgba(0,0,0,0.4)';
+    badge.innerText = `API: ${API_BASE}`;
+    document.body.appendChild(badge);
+  } catch (e) { /* ignore if DOM not ready */ }
 
   // Theme init
   const saved = localStorage.getItem("theme") || "dark";
