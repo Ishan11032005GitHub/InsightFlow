@@ -1,0 +1,45 @@
+InsightFlow — Project Overview
+
+Purpose
+- InsightFlow is an AI Test Case Automation System. It helps teams write, manage, and run test cases for software features, leveraging an AI generation helper to produce initial test case drafts from feature descriptions.
+
+What the website does (high-level)
+- User Management: Users can sign up, sign in, and authenticate using JWT. Passwords are stored securely (bcrypt).
+- Projects: Users create and manage projects that group related test cases and reports.
+- Test Cases: Users can create, view, update, and delete test cases. The system supports both manual test cases and AI-generated ones.
+- AI Generation: A simple AI endpoint accepts a feature description and returns a generated test case (title, description, steps). The project includes a mock AI implementation so the feature works without external API keys.
+- Reports: Users can store and retrieve execution reports for projects or test runs.
+- Settings & Theme: Each user can store preferences (dark/light theme) which are saved in the database and exposed through the settings API.
+
+Backend Architecture (summary)
+- Built with Node.js + Express.
+- RESTful API endpoints for authentication, projects, test cases, reports, settings, and AI-generation.
+- Database-agnostic: supports MongoDB (Mongoose) by default, with a SQL fallback (Sequelize + SQLite) for environments where Mongo is unavailable.
+- Middleware: central auth middleware validates JWTs and attaches the user to requests; an error handler ensures consistent error responses.
+- Utilities: a logging helper and an AI mock generator make the backend self-contained and easy to run locally.
+
+How the frontend interacts (brief)
+- The completed frontend sends REST requests to endpoints such as:
+  - `POST /api/auth/register` and `POST /api/auth/login` for authentication
+  - `GET/POST/PUT/DELETE /api/projects` to manage projects
+  - `GET/POST/PUT/DELETE /api/testcases` to manage test cases
+  - `POST /api/generateTestCase` to generate AI-based test cases
+  - `GET/POST /api/reports` to manage reports
+  - `GET/POST /api/settings` to read/update theme preference
+- Authenticated requests include a `Authorization: Bearer <token>` header returned by the login/register endpoints.
+
+Developer notes
+- The backend contains both `models/mongo` and `models/sql` directories. The runtime selects which to use via the `DB_TYPE` environment variable.
+- A seed script is provided to populate dummy users, a demo project, a sample test case, and an initial report.
+- The AI generator is a local mock that turns sentences in a feature description into ordered test steps; it is deterministic and requires no external API keys.
+
+Running locally (quick)
+1. Copy `.env.example` to `.env` and set `MONGO_URI` (or set `DB_TYPE=sql` to use SQLite).
+2. From `Backend/` run `npm install` and then `npm run dev` to start the server.
+3. Optionally run `npm run seed` to load sample data.
+
+Why this matters
+- InsightFlow reduces time spent writing manual test cases by bootstrapping them from natural language feature descriptions.
+- The system is designed for beginners: code is commented and organized into controllers, routes, models, middleware, and utils for easy navigation and extension.
+
+End of overview.
