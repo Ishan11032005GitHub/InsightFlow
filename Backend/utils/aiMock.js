@@ -284,15 +284,99 @@ function extractRecommendations(text) {
     .map(line => line.replace(/^[-*•]\s*/, '').trim());
 }
 
+/**
+ * RAG Chat - Retrieval-Augmented Generation for documents
+ * @param {string} documentContext - Extracted document text
+ * @param {string} userQuestion - User's question
+ * @returns {Promise<Object>} - AI response with RAG
+ */
+async function ragChat(documentContext, userQuestion) {
+  try {
+    const prompt = `You are a helpful document assistant. Answer the user's question based ONLY on the provided document content.
+
+Document Content:
+${documentContext}
+
+User Question: ${userQuestion}
+
+If the answer is not in the document, say "I could not find this information in the provided document."
+
+Answer:`;
+
+    const result = await model.generateContent(prompt);
+    const reply = result.response.text();
+
+    return {
+      reply: reply,
+      metadata: {
+        engine: 'gemini-flash-latest',
+        generatedAt: new Date().toISOString(),
+        method: 'rag',
+        promptTokens: result.response.usageMetadata?.promptTokenCount,
+        outputTokens: result.response.usageMetadata?.candidatesTokenCount
+      }
+    };
+  } catch (error) {
+    console.error('RAG chat error:', error);
+    return ragChatMock(documentContext, userQuestion);
+  }
+}
+
+/**
+ * RAG Chat Mock - Fallback for when Gemini is unavailable
+ */
+function ragChatMock(documentContext, userQuestion) {
+  const context = documentContext.toLowerCase();
+  const question = userQuestion.toLowerCase();
+  
+  let answer = '';
+  
+  // Simple keyword-based responses
+  if (question.includes('who') && question.includes('resume')) {
+    answer = 'Based on the document provided, I can see resume information. The document appears to contain professional information about a person.';
+  } else if (question.includes('experience') || question.includes('background')) {
+    if (context.includes('experience') || context.includes('work')) {
+      answer = 'The document contains experience information. You may find details about work history and background.';
+    } else {
+      answer = 'I could not find detailed experience information in the provided document.';
+    }
+  } else if (question.includes('skill') || question.includes('ability')) {
+    if (context.includes('skill') || context.includes('proficient')) {
+      answer = 'The document mentions various skills and competencies.';
+    } else {
+      answer = 'Specific skills information is not clearly mentioned in the document.';
+    }
+  } else if (question.includes('education') || question.includes('degree')) {
+    if (context.includes('education') || context.includes('university') || context.includes('college')) {
+      answer = 'The document contains education-related information.';
+    } else {
+      answer = 'Education details are not found in this document.';
+    }
+  } else {
+    answer = `Based on the provided document, I can help answer questions about its content. Your question was: "${userQuestion}". Please provide more specific details for a better answer.`;
+  }
+
+  return {
+    reply: answer,
+    metadata: {
+      engine: 'mock',
+      generatedAt: new Date().toISOString(),
+      method: 'rag-mock'
+    }
+  };
+}
+
 module.exports = { 
   generateReportFromData, 
   chatWithPdf,
   analyzeData,
   generateInsights,
   chatWithContext,
+  ragChat,
   generateReportFromDataMock,
   chatWithPdfMock,
   analyzeDataMock,
   generateInsightsMock,
-  chatWithContextMock
+  chatWithContextMock,
+  ragChatMock
 };

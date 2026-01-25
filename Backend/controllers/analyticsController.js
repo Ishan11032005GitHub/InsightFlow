@@ -396,13 +396,3 @@ function generateTextReport(details) {
 
   return report;
 }
-
-module.exports = {
-  createSession,
-  getSessions,
-  getSessionDetails,
-  uploadAndAnalyze,
-  performAnalysis,
-  sendMessage,
-  exportSession
-};
