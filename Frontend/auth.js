@@ -163,7 +163,7 @@
       // Some backends return token on signup; handle both
       if(data.token){
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user || { username, email }));
+        localStorage.setItem("user", JSON.stringify(data.user || { name: username, email }));
         showMsg("success","Account created. Redirecting...");
         setTimeout(()=> window.location.href="dashboard.html", 600);
       } else {

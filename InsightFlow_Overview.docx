@@ -5,7 +5,24 @@ Purpose
 
 What the website does (high-level)
 - User Management: Users can sign up, sign in, and authenticate using JWT. Passwords are stored securely (bcrypt).
-- Projects: Users create and manage projects that group related test cases and reports.
+- Projects: Users create and manPS C:\Users\ishan\OneDrive\Desktop\InsightFlow> node server.js
+node:internal/modules/cjs/loader:1247
+  throw err;
+  ^
+
+Error: Cannot find module 'C:\Users\ishan\OneDrive\Desktop\InsightFlow\server.js'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)
+    at Function._load (node:internal/modules/cjs/loader:1070:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.13.1
+PS C:\Users\ishan\OneDrive\Desktop\InsightFlow> age projects that group related test cases and reports.
 - Test Cases: Users can create, view, update, and delete test cases. The system supports both manual test cases and AI-generated ones.
 - AI Generation: A simple AI endpoint accepts a feature description and returns a generated test case (title, description, steps). The project includes a mock AI implementation so the feature works without external API keys.
 - Reports: Users can store and retrieve execution reports for projects or test runs.

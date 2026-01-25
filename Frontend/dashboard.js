@@ -26,11 +26,12 @@
     localStorage.setItem("theme", next);
     refreshThemeIcon();
   });
+  refreshThemeIcon();
 
   // ======= USER LABEL =======
   const userLabel = document.getElementById("userLabel");
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  userLabel.textContent = user.username ? `@${user.username}` : (user.email || "User");
+  userLabel.textContent = user.name ? `@${user.name}` : (user.email || "User");
 
   // ======= LOGOUT =======
   document.getElementById("logoutBtn")?.addEventListener("click", () => {
@@ -335,14 +336,17 @@
         if(barChart) barChart.destroy();
         if(pieChart) pieChart.destroy();
 
+        const chartsContainer = document.getElementById("chartsContainer");
+        chartsContainer.style.display = "grid";
+
         barChart = new Chart(document.getElementById("barChart"), {
           type: "bar",
-          data: { labels, datasets: [{ label:"Average", data: avgs }] }
+          data: { labels, datasets: [{ label:"Average", data: avgs, backgroundColor: 'rgba(124,92,255,0.7)' }] }
         });
 
         pieChart = new Chart(document.getElementById("pieChart"), {
           type: "pie",
-          data: { labels, datasets: [{ data: totals }] }
+          data: { labels, datasets: [{ data: totals, backgroundColor: ['rgba(124,92,255,0.7)', 'rgba(79,209,255,0.7)', 'rgba(168,85,247,0.7)', 'rgba(236,72,153,0.7)'] }] }
         });
 
         barDownload.classList.remove("hidden");
@@ -351,6 +355,7 @@
 
         // Insight (deterministic)
         const avgOfAvgs = report.reduce((s,r)=>s+r.avg,0) / report.length;
+        insightText.style.display = "block";
         insightText.textContent = avgOfAvgs >= 75
           ? "Overall dataset performance is strong across numeric columns."
           : "Dataset performance indicates scope for improvement (based on averages).";

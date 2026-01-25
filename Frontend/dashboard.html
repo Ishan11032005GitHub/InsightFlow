@@ -5,6 +5,13 @@
   <title>Dashboard | InsightFlow</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
   <link rel="stylesheet" href="base.css">
   <link rel="stylesheet" href="dashboard.css">
 </head>
@@ -13,18 +20,175 @@
 
 <div class="app">
   <aside class="sidebar glass">
-    <h2>InsightFlow</h2>
-    <button class="nav-item active">Data Analysis</button>
-    <button class="nav-item">Chat with PDF</button>
-    <button class="nav-item">Logout</button>
+    <div class="sidebar-header">
+      <h2>InsightFlow</h2>
+      <button class="icon-btn" id="themeToggle" title="Toggle theme">
+        <i data-lucide="moon"></i>
+      </button>
+    </div>
+    <button class="nav-item active" data-view="analysis">
+      <i data-lucide="bar-chart-2"></i> Data Analysis
+    </button>
+    <button class="nav-item" data-view="pdfchat">
+      <i data-lucide="file-text"></i> Chat with PDF
+    </button>
+    <button class="nav-item" data-view="sessions">
+      <i data-lucide="history"></i> Sessions
+    </button>
+    <div style="flex:1"></div>
+    <button class="nav-item" id="logoutBtn">
+      <i data-lucide="log-out"></i> Logout
+    </button>
   </aside>
 
   <main class="content">
-    <h1>Dashboard</h1>
-    <div class="glass insight">Upload data or chat with documents</div>
+    <!-- Header -->
+    <div class="content-header">
+      <div>
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageSub" class="page-subtitle">Upload data or chat with documents</p>
+      </div>
+      <span id="userLabel" class="user-label">User</span>
+    </div>
+
+    <!-- DATA ANALYSIS VIEW -->
+    <div id="view-analysis" class="view active">
+      <div class="view-section">
+        <h3>📊 Data Analysis</h3>
+        <div class="grid-2">
+          <!-- Upload CSV -->
+          <div class="glass card">
+            <h4>Upload CSV</h4>
+            <div class="form-group">
+              <input type="file" id="fileInput" accept=".csv" class="input"/>
+              <small class="muted">Select a CSV file with numeric data</small>
+            </div>
+          </div>
+
+          <!-- Paste Data -->
+          <div class="glass card">
+            <h4>Paste Data</h4>
+            <div class="form-group">
+              <textarea id="dataInput" class="input" placeholder="1,2,3,4,5" rows="3"></textarea>
+              <small class="muted">Comma-separated numbers</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validation message -->
+        <div id="validationMessage" class="validation-message hidden"></div>
+
+        <!-- Generate button -->
+        <button id="generateBtn" class="btn btn-primary">
+          <i data-lucide="zap"></i> Generate Report
+        </button>
+
+        <!-- Preview Table -->
+        <div id="tableSkeleton" class="skeleton-loading" style="display:none">
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+          <div class="skeleton-row"></div>
+        </div>
+        <div id="tableContent" class="glass card" style="display:none; overflow-x:auto">
+          <!-- populated by JS -->
+        </div>
+
+        <!-- Loading spinner -->
+        <div id="loadingSpinner" class="loading-spinner hidden"></div>
+
+        <!-- Insight -->
+        <div id="insightText" class="glass card insight-box" style="display:none">
+          <!-- populated by JS -->
+        </div>
+
+        <!-- Charts -->
+        <div class="grid-2" style="display:none" id="chartsContainer">
+          <div class="glass card">
+            <div style="position:relative; height:250px">
+              <canvas id="barChart"></canvas>
+            </div>
+            <button id="barDownload" class="btn btn-outline btn-sm hidden">
+              <i data-lucide="download"></i> Download Chart
+            </button>
+          </div>
+          <div class="glass card">
+            <div style="position:relative; height:250px">
+              <canvas id="pieChart"></canvas>
+            </div>
+            <button id="pieDownload" class="btn btn-outline btn-sm hidden">
+              <i data-lucide="download"></i> Download Chart
+            </button>
+          </div>
+        </div>
+
+        <!-- Download button -->
+        <button id="downloadBtn" class="btn btn-outline hidden">
+          <i data-lucide="download"></i> Download CSV Report
+        </button>
+      </div>
+    </div>
+
+    <!-- PDF CHAT VIEW -->
+    <div id="view-pdfchat" class="view">
+      <div class="view-section">
+        <h3>📄 Chat with PDF</h3>
+
+        <div class="glass card">
+          <h4>Upload PDF</h4>
+          <div class="form-group">
+            <input type="file" id="pdfInput" accept=".pdf" class="input"/>
+            <small class="muted">Select a PDF file to chat with</small>
+          </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div id="chatArea" class="chat-area glass card">
+          <div class="placeholder">Upload a PDF and ask a question.</div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-wrap">
+          <textarea id="chatPrompt" class="input" placeholder="Ask a question about the PDF..." rows="2"></textarea>
+          <button id="sendChatBtn" class="btn btn-primary">
+            <i data-lucide="send"></i> Send
+          </button>
+          <button id="clearChatBtn" class="btn btn-outline">
+            <i data-lucide="trash-2"></i> Clear
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SESSIONS VIEW -->
+    <div id="view-sessions" class="view">
+      <div class="view-section">
+        <h3>💾 Session History</h3>
+
+        <div class="session-controls">
+          <button id="newSessionBtn" class="btn btn-primary">
+            <i data-lucide="plus"></i> New Session
+          </button>
+          <button id="clearSessionsBtn" class="btn btn-outline">
+            <i data-lucide="trash-2"></i> Clear All
+          </button>
+          <button id="exportSessionsBtn" class="btn btn-outline">
+            <i data-lucide="download"></i> Export JSON
+          </button>
+        </div>
+
+        <!-- Sessions list -->
+        <div id="sessionList" class="glass card">
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
   </main>
 </div>
 
 <script src="dashboard.js"></script>
+<script>lucide?.createIcons()</script>
 </body>
 </html>

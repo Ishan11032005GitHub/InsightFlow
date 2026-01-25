@@ -1,13 +1,14 @@
 const db = require('../config/db');
 const aiMock = require('../utils/aiMock');
 
-// Generate a human-readable report from structured data (mock Gemini)
+// Generate a human-readable report from structured data using Gemini
 exports.generateReport = async (req, res) => {
   const { data, save = true, title } = req.body;
   if (!data) return res.status(400).json({ message: 'data field required' });
 
-  const generated = aiMock.generateReportFromData(Object.assign({}, data, { title }));
   try {
+    const generated = await aiMock.generateReportFromData(Object.assign({}, data, { title }));
+    
     if (save) {
       const models = db.getModels();
       const Report = models.Report;
@@ -18,7 +19,8 @@ exports.generateReport = async (req, res) => {
     }
     res.json({ generated });
   } catch (err) {
-    res.status(500).json({ message: 'Failed to save report', error: err.message });
+    console.error('Report generation error:', err);
+    res.status(500).json({ message: 'Failed to generate report', error: err.message });
   }
 };
 
@@ -35,7 +37,7 @@ exports.chatWithPdf = async (req, res) => {
       pdfContent = pdf && pdf.contentText ? pdf.contentText : '';
     }
 
-    const response = aiMock.chatWithPdf(pdfContent || '', message || '');
+    const response = await aiMock.chatWithPdf(pdfContent || '', message || '');
 
     // Optionally store chat message history if PdfDocument and ChatMessage models exist
     if (db.dbType === 'sql' && models.ChatMessage && pdfId) {
@@ -45,6 +47,7 @@ exports.chatWithPdf = async (req, res) => {
 
     res.json(response);
   } catch (err) {
+    console.error('Chat error:', err);
     res.status(500).json({ message: 'Chat failed', error: err.message });
   }
 };

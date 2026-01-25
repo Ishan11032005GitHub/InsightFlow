@@ -33,6 +33,45 @@ module.exports = async function init(sequelize) {
     preferences: { type: DataTypes.JSON }
   });
 
+  // Multi-modal data support: generic documents (CSV, JSON, text, PDF, etc.)
+  const Document = sequelize.define('Document', {
+    filename: { type: DataTypes.STRING, allowNull: false },
+    fileType: { type: DataTypes.STRING }, // 'csv', 'json', 'pdf', 'text', 'excel'
+    contentText: { type: DataTypes.TEXT('long') },
+    metadata: { type: DataTypes.JSON }, // file size, upload date, data insights
+    uploadedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+  });
+
+  // Analysis sessions: grouped conversations and analyses
+  const AnalysisSession = sequelize.define('AnalysisSession', {
+    title: { type: DataTypes.STRING, allowNull: false },
+    description: { type: DataTypes.TEXT },
+    mode: { type: DataTypes.STRING }, // 'data_analysis' or 'document_chat'
+    status: { type: DataTypes.STRING, defaultValue: 'active' }, // 'active', 'archived'
+    createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+    updatedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+  });
+
+  // Memory system: conversation history and context
+  const ConversationMessage = sequelize.define('ConversationMessage', {
+    role: { type: DataTypes.STRING }, // 'user' or 'assistant'
+    content: { type: DataTypes.TEXT },
+    messageType: { type: DataTypes.STRING }, // 'text', 'query', 'analysis', 'chart'
+    metadata: { type: DataTypes.JSON }, // token usage, model info, etc.
+    timestamp: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+  });
+
+  // Analytics results and charts
+  const AnalysisResult = sequelize.define('AnalysisResult', {
+    analysisType: { type: DataTypes.STRING }, // 'summary', 'trend', 'correlation', 'distribution'
+    title: { type: DataTypes.STRING },
+    description: { type: DataTypes.TEXT },
+    chartType: { type: DataTypes.STRING }, // 'bar', 'line', 'pie', 'scatter'
+    data: { type: DataTypes.JSON }, // chart data and configuration
+    insights: { type: DataTypes.JSON }, // AI-generated insights
+    createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+  });
+
   // Associations
   User.hasMany(PdfDocument, { foreignKey: 'ownerId' });
   PdfDocument.belongsTo(User, { as: 'owner', foreignKey: 'ownerId' });
@@ -46,7 +85,33 @@ module.exports = async function init(sequelize) {
   User.hasOne(Setting);
   Setting.belongsTo(User);
 
+  // New associations for multi-modal support
+  User.hasMany(Document, { foreignKey: 'ownerId' });
+  Document.belongsTo(User, { as: 'owner', foreignKey: 'ownerId' });
+
+  User.hasMany(AnalysisSession, { foreignKey: 'ownerId' });
+  AnalysisSession.belongsTo(User, { as: 'owner', foreignKey: 'ownerId' });
+
+  AnalysisSession.hasMany(Document, { foreignKey: 'sessionId' });
+  Document.belongsTo(AnalysisSession, { foreignKey: 'sessionId' });
+
+  AnalysisSession.hasMany(ConversationMessage, { foreignKey: 'sessionId' });
+  ConversationMessage.belongsTo(AnalysisSession, { foreignKey: 'sessionId' });
+
+  AnalysisSession.hasMany(AnalysisResult, { foreignKey: 'sessionId' });
+  AnalysisResult.belongsTo(AnalysisSession, { foreignKey: 'sessionId' });
+
   await sequelize.sync();
 
-  return { User, PdfDocument, ChatMessage, Report, Setting };
+  return {
+    User,
+    PdfDocument,
+    ChatMessage,
+    Report,
+    Setting,
+    Document,
+    AnalysisSession,
+    ConversationMessage,
+    AnalysisResult
+  };
 };

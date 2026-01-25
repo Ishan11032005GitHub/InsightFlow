@@ -15,6 +15,7 @@ const pdfRoutes = require('./routes/pdfRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.get('/', (req, res) => res.json({ ok: true, message: 'InsightFlow Backend ru
 app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/analytics', analyticsRoutes);
 app.use('/api', aiRoutes);
 app.use('/api/pdfs', pdfRoutes);
 
