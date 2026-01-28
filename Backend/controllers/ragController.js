@@ -1,246 +1,101 @@
-/**
- * RAG Chat Controller
- * Handles Retrieval-Augmented Generation for document Q&A
- */
+import axios from "axios";
+import { RagDocument } from "../models/sql/index.js";
 
-const db = require('../config/db');
-const aiMock = require('../utils/aiMock');
-const sessionManager = require('../utils/sessionManager');
+const RAG_SERVICE_URL = process.env.RAG_SERVICE_URL;
 
-/**
- * Chat with uploaded document using RAG
- * POST /api/rag/chat
- */
-const chatWithDocument = async (req, res) => {
+export const uploadDocument = async (req, res) => {
   try {
-    const { documentId, message, sessionId } = req.body;
-    const userId = req.user.id || req.user._id;
+    const { projectId } = req.body;
 
-    if (!documentId || !message) {
-      return res.status(400).json({ message: 'documentId and message required' });
+    if (!req.file || !projectId) {
+      return res.status(400).json({
+        error: "Missing file or projectId"
+      });
     }
 
-    const models = db.getModels();
-    const Document = models.Document;
-
-    // Get document
-    const document = await Document.findOne({
-      where: { id: documentId, ownerId: userId }
+    const doc = await RagDocument.create({
+      projectId,
+      originalName: req.file.originalname,
+      storagePath: req.file.path,
+      status: "processing"
     });
 
-    if (!document) {
-      return res.status(404).json({ message: 'Document not found' });
-    }
-
-    // Extract document context
-    const documentContext = `
-Document: ${document.filename}
-Type: ${document.fileType}
-Content excerpt: ${document.contentText.substring(0, 500)}...
-`;
-
-    // Build RAG prompt
-    const ragPrompt = `
-You are a helpful document analysis assistant. Use the provided document context to answer the user's question accurately.
-
-${documentContext}
-
-User Question: ${message}
-
-Answer based on the document content above:`;
-
-    // Get AI response with RAG
-    const response = await aiMock.ragChat(documentContext, message);
-
-    // Store message in session if provided
-    if (sessionId) {
-      await sessionManager.addMessage(sessionId, 'user', message, 'rag_query', { documentId });
-      await sessionManager.addMessage(sessionId, 'assistant', response.reply, 'rag_response', { documentId });
-    }
-
-    res.json({
-      success: true,
-      question: message,
-      answer: response.reply,
-      document: {
-        id: document.id,
-        filename: document.filename,
-        fileType: document.fileType
-      },
-      metadata: response.metadata || {}
-    });
-  } catch (error) {
-    console.error('RAG chat error:', error);
-    res.status(500).json({ message: 'RAG chat failed', error: error.message });
-  }
-};
-
-/**
- * Upload document for RAG
- * POST /api/rag/upload
- */
-const uploadDocumentForRag = async (req, res) => {
-  try {
-    const userId = req.user.id || req.user._id;
-
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file provided' });
-    }
-
-    const { originalname, buffer } = req.file;
-    const fileContent = buffer.toString('utf-8');
-
-    const models = db.getModels();
-    const Document = models.Document;
-
-    // Store document
-    const document = await Document.create({
-      filename: originalname,
-      fileType: 'rag_document',
-      contentText: fileContent,
-      metadata: {
-        uploadedAt: new Date().toISOString(),
-        size: buffer.length
-      },
-      ownerId: userId
+    // Fire-and-forget ingestion
+    axios.post(`${RAG_SERVICE_URL}/v1/ingest`, {
+      document_id: doc.id,
+      project_id: projectId,
+      file_path: req.file.path
+    }).catch(err => {
+      console.error("RAG ingestion failed:", err.message);
     });
 
     res.json({
-      success: true,
-      document: {
-        id: document.id,
-        filename: document.filename,
-        uploadedAt: document.uploadedAt
-      },
-      message: 'Document uploaded successfully for RAG'
+      id: doc.id,
+      name: doc.originalName,
+      status: "processing"
     });
-  } catch (error) {
-    console.error('Upload error:', error);
-    res.status(500).json({ message: 'Upload failed', error: error.message });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Upload failed" });
   }
 };
 
-/**
- * Get documents for RAG
- * GET /api/rag/documents
- */
-const getDocuments = async (req, res) => {
+export const chatWithDocument = async (req, res) => {
   try {
-    const userId = req.user.id || req.user._id;
-    const models = db.getModels();
-    const Document = models.Document;
+    const { projectId, documentId, message } = req.body;
 
-    const documents = await Document.findAll({
-      where: { ownerId: userId },
-      order: [['uploadedAt', 'DESC']]
-    });
-
-    res.json({
-      success: true,
-      documents: documents.map(doc => ({
-        id: doc.id,
-        filename: doc.filename,
-        fileType: doc.fileType,
-        uploadedAt: doc.uploadedAt,
-        size: doc.metadata?.size || 0
-      }))
-    });
-  } catch (error) {
-    console.error('Get documents error:', error);
-    res.status(500).json({ message: 'Failed to fetch documents', error: error.message });
-  }
-};
-
-/**
- * Delete document
- * DELETE /api/rag/documents/:documentId
- */
-const deleteDocument = async (req, res) => {
-  try {
-    const { documentId } = req.params;
-    const userId = req.user.id || req.user._id;
-    const models = db.getModels();
-    const Document = models.Document;
-
-    const document = await Document.findOne({
-      where: { id: documentId, ownerId: userId }
-    });
-
-    if (!document) {
-      return res.status(404).json({ message: 'Document not found' });
+    if (!projectId || !documentId || !message) {
+      return res.status(400).json({ error: "Missing fields" });
     }
 
-    await document.destroy();
-
-    res.json({
-      success: true,
-      message: 'Document deleted successfully'
-    });
-  } catch (error) {
-    console.error('Delete error:', error);
-    res.status(500).json({ message: 'Delete failed', error: error.message });
-  }
-};
-
-/**
- * Get chat history for document
- * GET /api/rag/chat-history/:documentId
- */
-const getChatHistory = async (req, res) => {
-  try {
-    const { documentId } = req.params;
-    const userId = req.user.id || req.user._id;
-    const models = db.getModels();
-    const Document = models.Document;
-    const ConversationMessage = models.ConversationMessage;
-
-    // Verify document ownership
-    const document = await Document.findOne({
-      where: { id: documentId, ownerId: userId }
-    });
-
-    if (!document) {
-      return res.status(404).json({ message: 'Document not found' });
-    }
-
-    // Get messages related to this document
-    const messages = await ConversationMessage.findAll({
-      where: {},
-      order: [['timestamp', 'ASC']],
-      limit: 100
-    });
-
-    // Filter messages that mention this document
-    const filteredMessages = messages.filter(m => {
-      try {
-        const metadata = m.metadata || {};
-        return metadata.documentId === documentId;
-      } catch {
-        return false;
+    const response = await axios.post(
+      `${RAG_SERVICE_URL}/v1/query`,
+      {
+        project_id: projectId,
+        document_id: documentId,
+        question: message
       }
-    });
+    );
 
-    res.json({
-      success: true,
-      documentId,
-      messages: filteredMessages.map(m => ({
-        role: m.role,
-        content: m.content,
-        timestamp: m.timestamp,
-        type: m.messageType
-      }))
-    });
-  } catch (error) {
-    console.error('Get chat history error:', error);
-    res.status(500).json({ message: 'Failed to fetch chat history', error: error.message });
+    res.json(response.data);
+
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    res.status(500).json({ error: "Query failed" });
   }
 };
 
-// Export all functions
-module.exports = {
-  chatWithDocument,
-  uploadDocumentForRag,
-  getDocuments,
-  deleteDocument,
-  getChatHistory
+export const listDocuments = async (req, res) => {
+  const { projectId } = req.query;
+
+  if (!projectId) {
+    return res.status(400).json({ error: "projectId required" });
+  }
+
+  const docs = await RagDocument.findAll({
+    where: { projectId }
+  });
+
+  res.json(docs);
+};
+
+export const deleteDocument = async (req, res) => {
+  const { documentId } = req.params;
+  const { projectId } = req.query;
+
+  if (!projectId) {
+    return res.status(400).json({ error: "projectId required" });
+  }
+
+  await RagDocument.destroy({
+    where: { id: documentId, projectId }
+  });
+
+  axios.post(`${RAG_SERVICE_URL}/v1/delete`, {
+    document_id: documentId,
+    project_id: projectId
+  }).catch(() => {});
+
+  res.json({ success: true });
 };

@@ -11,13 +11,31 @@ module.exports = async function init(sequelize) {
     themePreference: { type: DataTypes.STRING, defaultValue: 'light' }
   });
 
-  // Pdf documents stored as plain text for search/chat; real systems would store binaries or S3 refs
+  // Projects (was missing in SQL mode; project routes were broken)
+  const Project = sequelize.define('Project', {
+    title: { type: DataTypes.STRING, allowNull: false },
+    description: { type: DataTypes.TEXT },
+    members: { type: DataTypes.JSON } // optional array of user ids
+  });
+
+  // RAG docs: file reference + ingestion state (NOT full text blobs)
+  const RagDocument = sequelize.define('RagDocument', {
+    filename: { type: DataTypes.STRING, allowNull: false },
+    mimeType: { type: DataTypes.STRING },
+    sizeBytes: { type: DataTypes.INTEGER },
+    storagePath: { type: DataTypes.STRING, allowNull: false },
+    projectId: { type: DataTypes.STRING, allowNull: false },
+    ingestionStatus: { type: DataTypes.STRING, defaultValue: 'queued' }, // queued|ingesting|ingested|failed
+    ingestionMeta: { type: DataTypes.JSON }
+  });
+
+  // Legacy PDF documents stored as plain text
   const PdfDocument = sequelize.define('PdfDocument', {
     filename: { type: DataTypes.STRING, allowNull: false },
     contentText: { type: DataTypes.TEXT('long') }
   });
 
-  // Chat messages for PDF conversations
+  // Chat messages for legacy PDF conversations
   const ChatMessage = sequelize.define('ChatMessage', {
     role: { type: DataTypes.STRING }, // 'user' or 'assistant'
     message: { type: DataTypes.TEXT }
@@ -73,6 +91,12 @@ module.exports = async function init(sequelize) {
   });
 
   // Associations
+  User.hasMany(Project, { foreignKey: 'ownerId' });
+  Project.belongsTo(User, { as: 'owner', foreignKey: 'ownerId' });
+
+  User.hasMany(RagDocument, { foreignKey: 'ownerId' });
+  RagDocument.belongsTo(User, { as: 'owner', foreignKey: 'ownerId' });
+
   User.hasMany(PdfDocument, { foreignKey: 'ownerId' });
   PdfDocument.belongsTo(User, { as: 'owner', foreignKey: 'ownerId' });
 
@@ -85,7 +109,6 @@ module.exports = async function init(sequelize) {
   User.hasOne(Setting);
   Setting.belongsTo(User);
 
-  // New associations for multi-modal support
   User.hasMany(Document, { foreignKey: 'ownerId' });
   Document.belongsTo(User, { as: 'owner', foreignKey: 'ownerId' });
 
@@ -105,6 +128,8 @@ module.exports = async function init(sequelize) {
 
   return {
     User,
+    Project,
+    RagDocument,
     PdfDocument,
     ChatMessage,
     Report,

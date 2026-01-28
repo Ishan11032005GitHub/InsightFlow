@@ -1,13 +1,19 @@
 (function(){
   // ======= CONFIG =======
-    const API_BASE = "http://localhost:6001"; // change if needed
+  const API_BASE = "http://localhost:6001"; // Backend API endpoint
+  
+  console.log('Dashboard loading...');
+  console.log('localStorage keys:', Object.keys(localStorage));
 
   // ======= AUTH GUARD =======
   const token = localStorage.getItem("token");
+  console.log('Token:', token ? 'Present' : 'Missing');
   if(!token){
+    console.warn('No token, redirecting to auth');
     window.location.href = "auth.html";
     return;
   }
+  console.log('Auth OK, continuing...');
 
   // ======= THEME =======
   const html = document.documentElement;
@@ -405,21 +411,149 @@
   const sendChatBtn = document.getElementById("sendChatBtn");
   const chatArea = document.getElementById("chatArea");
   const clearChatBtn = document.getElementById("clearChatBtn");
+  
+  // Validate elements exist
+  console.log('PDF Chat Elements:');
+  console.log('  pdfInput:', pdfInput ? 'Found' : 'MISSING!');
+  console.log('  chatPrompt:', chatPrompt ? 'Found' : 'MISSING!');
+  console.log('  sendChatBtn:', sendChatBtn ? 'Found' : 'MISSING!');
+  console.log('  chatArea:', chatArea ? 'Found' : 'MISSING!');
+  console.log('  clearChatBtn:', clearChatBtn ? 'Found' : 'MISSING!');
 
   let currentPdfName = null;
+  let currentDocumentId = null;
   let chatHistory = [];
+  let isUploading = false; // Flag to prevent issues during upload
+  
+  // Restore state from sessionStorage if page was reloaded
+  const savedPdfName = sessionStorage.getItem('currentPdfName');
+  const savedDocumentId = sessionStorage.getItem('currentDocumentId');
+  if (savedPdfName && savedDocumentId) {
+    console.log('Restoring state from sessionStorage');
+    currentPdfName = savedPdfName;
+    currentDocumentId = savedDocumentId;
+    console.log('Restored: PDF=', currentPdfName, 'ID=', currentDocumentId);
+  }
 
-  pdfInput?.addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if(!file) return;
-
-    if(file.type !== "application/pdf"){
-      showToast("error","Please upload a valid PDF.");
+  pdfInput?.addEventListener("change", async (e) => {
+    console.log('=== PDF INPUT CHANGE EVENT ===');
+    if (isUploading) {
+      console.warn('Upload already in progress');
       return;
     }
-    currentPdfName = file.name;
-    showToast("success", `PDF loaded: ${file.name}`);
-    renderChat();
+    isUploading = true;
+    console.log('Upload started');
+    
+    // Prevent page from leaving during upload
+    const preventUnload = (evt) => {
+      evt.preventDefault();
+      evt.returnValue = '';
+      console.log('✓ Page unload prevented');
+    };
+    window.addEventListener('beforeunload', preventUnload);
+    console.log('✓ Unload prevention attached');
+    
+    try {
+      console.log('Step 1: Getting file...');
+      const file = e.target.files[0];
+      if(!file) {
+        console.log('No file selected');
+        isUploading = false;
+        window.removeEventListener('beforeunload', preventUnload);
+        return;
+      }
+      console.log('✓ File:', file.name);
+
+      console.log('Step 2: Checking file type...');
+      if(file.type !== "application/pdf"){
+        console.warn('Invalid file type:', file.type);
+        showToast("error","Please upload a valid PDF.");
+        isUploading = false;
+        window.removeEventListener('beforeunload', preventUnload);
+        return;
+      }
+      console.log('✓ File type is PDF');
+      
+      // Upload PDF to backend
+      console.log('Step 3: Creating FormData...');
+      const formData = new FormData();
+      formData.append("file", file);
+      console.log('✓ FormData created');
+      
+      console.log('Step 4: Sending fetch request...');
+      const res = await fetch(`${API_BASE}/api/rag/upload`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
+        body: formData
+      });
+      console.log('✓ Fetch response received, status:', res.status);
+      
+      console.log('Step 5: Checking response status...');
+      if (!res.ok) {
+        console.error('Response not OK');
+        const err = await res.json();
+        throw new Error(err.message || "Upload failed");
+      }
+      console.log('✓ Response OK');
+      
+      console.log('Step 6: Parsing JSON response...');
+      const data = await res.json();
+      console.log('✓ JSON parsed:', data);
+      
+      console.log('Step 7: Validating document ID...');
+      if (!data.document?.id) {
+        console.error('Document ID missing in response!', data);
+        throw new Error('Server returned invalid document ID');
+      }
+      console.log('✓ Document ID valid:', data.document.id);
+      
+      console.log('Step 8: Updating state variables...');
+      currentDocumentId = data.document.id;
+      currentPdfName = data.document.filename || file.name;
+      console.log('✓ State updated:', { currentPdfName, currentDocumentId });
+      
+      // Persist state to sessionStorage in case of page reload
+      console.log('Step 9: Persisting to sessionStorage...');
+      sessionStorage.setItem('currentPdfName', currentPdfName);
+      sessionStorage.setItem('currentDocumentId', currentDocumentId);
+      console.log('✓ SessionStorage updated');
+      
+      console.log('Step 10: Showing success toast...');
+      showToast("success", `PDF uploaded: ${currentPdfName}`);
+      console.log('✓ Toast shown');
+      
+      console.log('Step 11: Resetting chat history...');
+      chatHistory = [];
+      console.log('✓ Chat history reset');
+      
+      console.log('Step 12: Calling renderChat()...');
+      try {
+        renderChat();
+        console.log('✓ renderChat() completed successfully');
+      } catch (renderErr) {
+        console.error('✗ renderChat() threw error:', renderErr);
+        console.error('  Error message:', renderErr.message);
+        console.error('  Error stack:', renderErr.stack);
+        throw renderErr;
+      }
+      
+      console.log('=== UPLOAD COMPLETE - SUCCESS ===');
+    } catch (err) {
+      console.error('=== UPLOAD ERROR ===');
+      console.error('Error type:', err.constructor.name);
+      console.error('Error message:', err.message);
+      console.error('Error stack:', err.stack);
+      showToast("error", `Upload error: ${err.message}`);
+      // Clear the file input on error so user can retry
+      if (pdfInput) pdfInput.value = '';
+    } finally {
+      console.log('Step FINAL: Cleanup...');
+      isUploading = false;
+      window.removeEventListener('beforeunload', preventUnload);
+      console.log('✓ Upload flag reset, unload prevention removed');
+    }
   });
 
   function pushMsg(role, text){
@@ -428,13 +562,21 @@
   }
 
   function renderChat(){
+    if (!chatArea) {
+      console.error('chatArea element not found!');
+      return;
+    }
+    console.log('renderChat called, currentPdfName:', currentPdfName, 'chatArea:', chatArea);
     chatArea.innerHTML = "";
     if(!currentPdfName){
       chatArea.innerHTML = `<div class="placeholder">Upload a PDF and ask a question.</div>`;
+      console.log('No PDF - showing placeholder');
       return;
     }
     if(!chatHistory.length){
-      chatArea.innerHTML = `<div class="placeholder">PDF ready: ${currentPdfName}. Ask your first question.</div>`;
+      const msg = `PDF ready: ${currentPdfName}. Ask your first question.`;
+      chatArea.innerHTML = `<div class="placeholder">${msg}</div>`;
+      console.log('PDF ready - showing ready message:', msg);
       return;
     }
 
@@ -462,27 +604,30 @@
     pushMsg("user", q);
     chatPrompt.value = "";
 
-    // UI-only fallback:
-    pushMsg("bot", "UI ready. Connect /api/rag/chat to answer with RAG.");
-
-    // OPTIONAL: If your backend is ready, uncomment:
-    /*
-    try{
+    // Call RAG chat endpoint
+    try {
       const res = await fetch(`${API_BASE}/api/rag/chat`, {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ question: q, pdfName: currentPdfName })
+        body: JSON.stringify({ 
+          documentId: currentDocumentId, 
+          message: q
+        })
       });
+      
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "RAG chat failed");
+      }
+      
       const data = await res.json();
-      if(!res.ok) throw new Error(data.message || "RAG chat failed");
       pushMsg("bot", data.answer || "No answer returned");
-    }catch(err){
+    } catch (err) {
       pushMsg("bot", `Error: ${err.message}`);
     }
-    */
   });
 
   clearChatBtn?.addEventListener("click", () => {
@@ -491,9 +636,39 @@
     showToast("success","Chat cleared.");
   });
 
+  // ======= PAGE UNLOAD TRACKING =======
+  window.addEventListener('beforeunload', (e) => {
+    console.log('Page beforeunload event fired');
+    console.log('Event:', e);
+  });
+  
+  window.addEventListener('unload', () => {
+    console.log('Page unload event fired');
+  });
+  
+  // Catch any unhandled errors
+  window.addEventListener('error', (event) => {
+    console.error('Uncaught error:', event.error);
+    console.error('Error message:', event.message);
+    console.error('Error stack:', event.error?.stack);
+  });
+  
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+  });
+
   // ======= INIT =======
+  console.log('Initializing dashboard...');
   lucide?.createIcons();
   refreshThemeIcon();
   renderSessions();
-  setView("analysis");
+  setView("pdfchat");
+  
+  // If we restored PDF state, render the chat
+  if (currentPdfName) {
+    console.log('Rendering chat with restored PDF state');
+    renderChat();
+  }
+  
+  console.log('Dashboard initialized, view set to pdfchat');
 })();

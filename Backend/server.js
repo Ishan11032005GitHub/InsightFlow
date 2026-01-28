@@ -54,6 +54,8 @@ app.get('/', (req, res) => res.json({ ok: true, message: 'InsightFlow Backend ru
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/testcases', testCaseRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/analytics', analyticsRoutes);
@@ -66,6 +68,7 @@ app.use(errorHandler);
 
 const START_PORT = parseInt(process.env.PORT, 10) || 6001;
 const MAX_TRIES = 10;
+let globalServer = null; // Keep reference to prevent GC
 
 // Try to connect DB and start server on first available port (START_PORT...START_PORT+MAX_TRIES)
 (async () => {
@@ -75,27 +78,26 @@ const MAX_TRIES = 10;
     for (let i = 0; i <= MAX_TRIES; i++) {
       const port = START_PORT + i;
       try {
-        await new Promise((resolve, reject) => {
-          const server = app.listen(port)
-            .on('listening', () => {
-              // record chosen port so /api/config can report it
-              app.set('apiPort', port);
-              logger.info(`Server listening on port ${port}`);
-              resolve(server);
-            })
-            .on('error', (err) => {
-              reject(err);
-            });
+        globalServer = app.listen(port, () => {
+          app.set('apiPort', port);
+          logger.info(`Server listening on port ${port}`);
         });
-        // If started, break loop
+        globalServer.on('error', (err) => {
+          if (err.code === 'EADDRINUSE') {
+            logger.info(`Port ${port} in use, trying next port...`);
+          } else {
+            logger.error('Server error:', err);
+            process.exit(1);
+          }
+        });
         break;
       } catch (err) {
-        if (err && err.code === 'EADDRINUSE') {
-          logger.info(`Port ${port} in use, trying next port...`);
-          continue;
-        }
-        throw err;
+        logger.error('Error starting server:', err);
       }
+    }
+    
+    if (!globalServer) {
+      throw new Error('Could not start server on any available port');
     }
   } catch (err) {
     logger.error('Failed to start server', err);
