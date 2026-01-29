@@ -1,4 +1,4 @@
-/* Ambient and topbar */
+
 .ambient-layer{
   position:fixed;
   top:0;
@@ -82,7 +82,7 @@
   gap:6px;
 }
 
-/* Hero section */
+
 .hero{
   padding:100px 20px;
   text-align:center;

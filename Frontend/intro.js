@@ -24,7 +24,7 @@
     refreshIcon();
   });
 
-  // If already logged in, redirect straight to dashboard
+  
   const token = localStorage.getItem("token");
   if(token){
     const btn = document.getElementById("signInBtn");
