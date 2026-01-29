@@ -40,7 +40,7 @@
   API_BASE = await detectApiBase();
   console.info('Detected API_BASE ->', API_BASE);
 
-  // Add a small debug badge to the page so it's visible which API base was detected
+  
   try {
     const badge = document.createElement('div');
     badge.id = 'api-base-badge';
@@ -58,7 +58,7 @@
     document.body.appendChild(badge);
   } catch (e) { /* ignore if DOM not ready */ }
 
-  // Theme init
+  
   const saved = localStorage.getItem("theme") || "dark";
   html.setAttribute("data-theme", saved);
 
@@ -75,7 +75,7 @@
     refreshIcon();
   });
 
-  // Tabs
+  
   tabs.forEach(t => {
     t.addEventListener("click", () => {
       tabs.forEach(x => x.classList.remove("active"));
@@ -96,13 +96,13 @@
     msg.classList.add("hidden");
   }
 
-  // If already logged in
+ 
   if(localStorage.getItem("token")){
     window.location.href = "dashboard.html";
     return;
   }
 
-  // Signin
+  
   signinForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     hideMsg();
@@ -125,7 +125,7 @@
       const data = await res.json().catch(()=> ({}));
       if(!res.ok) throw new Error(data.message || "Login failed");
 
-      // Expected response: { token, user: { username, email } }
+      
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user || { email }));
 
@@ -136,7 +136,7 @@
     }
   });
 
-  // Signup
+  
   signupForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     hideMsg();
@@ -160,7 +160,7 @@
       const data = await res.json().catch(()=> ({}));
       if(!res.ok) throw new Error(data.message || "Signup failed");
 
-      // Some backends return token on signup; handle both
+      
       if(data.token){
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user || { name: username, email }));
