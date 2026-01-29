@@ -334,7 +334,7 @@
         html += "</table>";
         tableContent.innerHTML = html;
 
-        // Charts
+        
         const labels = report.map(r => r.header);
         const avgs = report.map(r => r.avg);
         const totals = report.map(r => r.total);
