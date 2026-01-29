@@ -9,7 +9,7 @@
   const signinForm = document.getElementById("signinForm");
   const signupForm = document.getElementById("signupForm");
 
-  // Auto-detect backend API base by probing localhost ports (6000-6010)
+ 
   let API_BASE = null;
 
   async function detectApiBase() {
