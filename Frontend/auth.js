@@ -29,7 +29,7 @@
         if (data && data.apiBase) return data.apiBase;
         return `http://localhost:${p}`;
       } catch (err) {
-        // continue probing
+        
         continue;
       }
     }
