@@ -359,7 +359,7 @@
         pieDownload.classList.remove("hidden");
         downloadBtn.classList.remove("hidden");
 
-        // Insight (deterministic)
+       
         const avgOfAvgs = report.reduce((s,r)=>s+r.avg,0) / report.length;
         insightText.style.display = "block";
         insightText.textContent = avgOfAvgs >= 75
@@ -405,14 +405,14 @@
   barDownload?.addEventListener("click", () => downloadChart("barChart","bar_chart.png"));
   pieDownload?.addEventListener("click", () => downloadChart("pieChart","pie_chart.png"));
 
-  // ======= PDF CHAT (UI + optional API hook) =======
+  
   const pdfInput = document.getElementById("pdfInput");
   const chatPrompt = document.getElementById("chatPrompt");
   const sendChatBtn = document.getElementById("sendChatBtn");
   const chatArea = document.getElementById("chatArea");
   const clearChatBtn = document.getElementById("clearChatBtn");
   
-  // Validate elements exist
+
   console.log('PDF Chat Elements:');
   console.log('  pdfInput:', pdfInput ? 'Found' : 'MISSING!');
   console.log('  chatPrompt:', chatPrompt ? 'Found' : 'MISSING!');
@@ -423,9 +423,10 @@
   let currentPdfName = null;
   let currentDocumentId = null;
   let chatHistory = [];
-  let isUploading = false; // Flag to prevent issues during upload
+  let isUploading = false;
   
-  // Restore state from sessionStorage if page was reloaded
+  
+
   const savedPdfName = sessionStorage.getItem('currentPdfName');
   const savedDocumentId = sessionStorage.getItem('currentDocumentId');
   if (savedPdfName && savedDocumentId) {
@@ -444,7 +445,7 @@
     isUploading = true;
     console.log('Upload started');
     
-    // Prevent page from leaving during upload
+
     const preventUnload = (evt) => {
       evt.preventDefault();
       evt.returnValue = '';
@@ -474,7 +475,7 @@
       }
       console.log('✓ File type is PDF');
       
-      // Upload PDF to backend
+      
       console.log('Step 3: Creating FormData...');
       const formData = new FormData();
       formData.append("file", file);
@@ -514,7 +515,7 @@
       currentPdfName = data.document.filename || file.name;
       console.log('✓ State updated:', { currentPdfName, currentDocumentId });
       
-      // Persist state to sessionStorage in case of page reload
+      
       console.log('Step 9: Persisting to sessionStorage...');
       sessionStorage.setItem('currentPdfName', currentPdfName);
       sessionStorage.setItem('currentDocumentId', currentDocumentId);
@@ -546,7 +547,7 @@
       console.error('Error message:', err.message);
       console.error('Error stack:', err.stack);
       showToast("error", `Upload error: ${err.message}`);
-      // Clear the file input on error so user can retry
+      
       if (pdfInput) pdfInput.value = '';
     } finally {
       console.log('Step FINAL: Cleanup...');
@@ -604,7 +605,7 @@
     pushMsg("user", q);
     chatPrompt.value = "";
 
-    // Call RAG chat endpoint
+    
     try {
       const res = await fetch(`${API_BASE}/api/rag/chat`, {
         method: "POST",
@@ -636,7 +637,7 @@
     showToast("success","Chat cleared.");
   });
 
-  // ======= PAGE UNLOAD TRACKING =======
+  
   window.addEventListener('beforeunload', (e) => {
     console.log('Page beforeunload event fired');
     console.log('Event:', e);
@@ -646,7 +647,7 @@
     console.log('Page unload event fired');
   });
   
-  // Catch any unhandled errors
+  
   window.addEventListener('error', (event) => {
     console.error('Uncaught error:', event.error);
     console.error('Error message:', event.message);
@@ -657,14 +658,14 @@
     console.error('Unhandled promise rejection:', event.reason);
   });
 
-  // ======= INIT =======
+  
   console.log('Initializing dashboard...');
   lucide?.createIcons();
   refreshThemeIcon();
   renderSessions();
   setView("pdfchat");
   
-  // If we restored PDF state, render the chat
+  
   if (currentPdfName) {
     console.log('Rendering chat with restored PDF state');
     renderChat();
