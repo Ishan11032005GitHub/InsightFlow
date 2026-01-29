@@ -1,11 +1,11 @@
 (function(){
-  // ======= CONFIG =======
-  const API_BASE = "http://localhost:6001"; // Backend API endpoint
+  
+  const API_BASE = "http://localhost:6001";
   
   console.log('Dashboard loading...');
   console.log('localStorage keys:', Object.keys(localStorage));
 
-  // ======= AUTH GUARD =======
+  
   const token = localStorage.getItem("token");
   console.log('Token:', token ? 'Present' : 'Missing');
   if(!token){
@@ -15,7 +15,7 @@
   }
   console.log('Auth OK, continuing...');
 
-  // ======= THEME =======
+  
   const html = document.documentElement;
   html.setAttribute("data-theme", localStorage.getItem("theme") || "dark");
 
@@ -34,19 +34,19 @@
   });
   refreshThemeIcon();
 
-  // ======= USER LABEL =======
+  
   const userLabel = document.getElementById("userLabel");
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   userLabel.textContent = user.name ? `@${user.name}` : (user.email || "User");
 
-  // ======= LOGOUT =======
+  
   document.getElementById("logoutBtn")?.addEventListener("click", () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     window.location.href = "intro.html";
   });
 
-  // ======= TOAST =======
+  
   function showToast(type, message){
     const container = document.getElementById("toastContainer");
     if(!container) return;
@@ -62,7 +62,7 @@
     setTimeout(()=> toast.remove(), 3500);
   }
 
-  // ======= VIEWS / NAV =======
+  
   const navItems = document.querySelectorAll(".nav-item");
   const views = {
     analysis: document.getElementById("view-analysis"),
@@ -94,7 +94,7 @@
 
   navItems.forEach(btn => btn.addEventListener("click", () => setView(btn.dataset.view)));
 
-  // ======= SESSIONS (LOCAL) =======
+  
   const sessionKey = "insightflow_sessions";
   const sessionList = document.getElementById("sessionList");
 
@@ -185,7 +185,7 @@
     URL.revokeObjectURL(url);
   });
 
-  // ======= ANALYSIS MODE =======
+  
   let csvData = null;
   let lastReport = null;
   let barChart = null;
