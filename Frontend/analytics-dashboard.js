@@ -232,7 +232,7 @@ function displayAnalysisResults(result) {
 
   resultsList.innerHTML += html;
 
-  // Switch to results tab
+  
   switchTab('results');
 }
 
@@ -246,7 +246,7 @@ async function sendMessage() {
     return;
   }
 
-  // Add user message
+  
   addMessage('user', message);
   input.value = '';
 
@@ -351,13 +351,13 @@ async function createNewSession() {
     const data = await response.json();
     currentSession = data.session;
 
-    // Clear form
+    
     document.getElementById('sessionTitle').value = '';
     document.getElementById('sessionDescription').value = '';
     document.getElementById('sessionMode').value = 'data_analysis';
     document.getElementById('newSessionModal').classList.remove('active');
 
-    // Reload sessions
+    
     await loadSessions();
     showAlert(`Session created: ${title}`, 'success');
   } catch (error) {
@@ -375,7 +375,7 @@ function analyzeDocument(documentId, fileType) {
 async function downloadDocument(documentId) {
   try {
     showAlert('Downloading...', 'info');
-    // Implementation depends on backend support
+    
     showAlert('Download started', 'success');
   } catch (error) {
     showAlert(`Download failed: ${error.message}`, 'error');
