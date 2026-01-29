@@ -320,7 +320,7 @@
         lastReport = report;
         hideSkeleton();
 
-        // Render report table
+        
         let html = "<table><tr><th>Column</th><th>Total</th><th>Average</th><th>Max</th><th>Min</th></tr>";
         report.forEach(r => {
           html += `<tr>
