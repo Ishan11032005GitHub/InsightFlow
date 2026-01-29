@@ -205,7 +205,7 @@ async function runAnalysis(analysisType) {
     
     addMessage('assistant', `**${analysisType.toUpperCase()} Analysis**\n\n${result.aiInsights.summary}`);
 
-    // Display results
+    
     displayAnalysisResults(result);
 
     showAlert('Analysis complete', 'success');
