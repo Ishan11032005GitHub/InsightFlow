@@ -1,14 +1,11 @@
-/**
- * InsightFlow 2.0 - Analytics Dashboard
- * Handles multi-modal data analysis, sessions, and chat
- */
+
 
 const API_BASE = localStorage.getItem('apiBase') || 'http://localhost:6001';
 const TOKEN = localStorage.getItem('token');
 let currentSession = null;
 let currentDocument = null;
 
-// Initialize
+
 document.addEventListener('DOMContentLoaded', () => {
   if (!TOKEN) {
     window.location.href = 'auth.html';
@@ -21,12 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeEventListeners() {
-  // Tabs
+  
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab));
   });
 
-  // File upload
+  
   const uploadZone = document.getElementById('uploadZone');
   const fileInput = document.getElementById('fileInput');
   
@@ -48,7 +45,7 @@ function initializeEventListeners() {
     if (e.target.files[0]) handleFileUpload(e.target.files[0]);
   });
 
-  // Session management
+  
   document.getElementById('newSessionBtn').addEventListener('click', () => {
     document.getElementById('newSessionModal').classList.add('active');
   });
@@ -58,23 +55,23 @@ function initializeEventListeners() {
     document.getElementById('newSessionModal').classList.remove('active');
   });
 
-  // Chat
+  
   document.getElementById('sendBtn').addEventListener('click', sendMessage);
   document.getElementById('chatInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendMessage();
   });
 
-  // Theme
+  
   document.getElementById('themeToggle').addEventListener('click', toggleTheme);
   document.getElementById('logoutBtn').addEventListener('click', logout);
 }
 
 function switchTab(tabName) {
-  // Update active tab
+  
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
 
-  // Update active content
+  
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   document.getElementById(tabName).classList.add('active');
 }
@@ -104,13 +101,13 @@ async function handleFileUpload(file) {
     const data = await response.json();
     currentDocument = data.document;
 
-    // Clear file input
+    
     document.getElementById('fileInput').value = '';
 
-    // Show initial analysis
+    
     addMessage('assistant', data.initialAnalysis);
 
-    // Show documents and analysis options
+    
     await loadDocuments();
     showAnalysisOptions();
 
@@ -205,7 +202,7 @@ async function runAnalysis(analysisType) {
 
     const result = await response.json();
 
-    // Add result to chat
+    
     addMessage('assistant', `**${analysisType.toUpperCase()} Analysis**\n\n${result.aiInsights.summary}`);
 
     // Display results
