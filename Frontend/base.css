@@ -89,7 +89,7 @@ body{
   transform:scale(0.95);
 }
 
-/* Toast notifications */
+
 .toast-container{
   position:fixed;
   bottom:20px;
