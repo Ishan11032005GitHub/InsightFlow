@@ -12,7 +12,7 @@
   let API_BASE = null;
 
   async function detectApiBase() {
-    
+
       const start = 6001;
     const end = 6011;
     for (let p = start; p <= end; p++) {
