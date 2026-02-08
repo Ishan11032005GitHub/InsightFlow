@@ -4,7 +4,6 @@ const TOKEN = localStorage.getItem('token');
 let currentSession = null;
 let currentDocument = null;
 
-// Initialize the dashboard when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
   if (!TOKEN) {
     window.location.href = 'auth.html';
