@@ -18,7 +18,7 @@
     for (let p = start; p <= end; p++) {
       const url = `http://localhost:${p}/api/config`;
       try {
-        
+      
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), 1500);
         const res = await fetch(url, { signal: controller.signal });
