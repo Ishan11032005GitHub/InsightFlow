@@ -12,7 +12,7 @@
       : '<i data-lucide="sun"></i>';
     lucide?.createIcons();
   }
-
+// theme
   function savedTheme(){
     return html.getAttribute("data-theme") || "dark";
   }
