@@ -23,7 +23,6 @@
     localStorage.setItem("theme", next);
     refreshIcon();
   });
-
   
   const token = localStorage.getItem("token");
   if(token){
