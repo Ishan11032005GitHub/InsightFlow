@@ -35,7 +35,6 @@
     
       return 'http://localhost:6001';
   }
-
   API_BASE = await detectApiBase();
   console.info('Detected API_BASE ->', API_BASE);
 
