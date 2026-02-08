@@ -3,7 +3,7 @@ const API_BASE = localStorage.getItem('apiBase') || 'http://localhost:6001';
 const TOKEN = localStorage.getItem('token');
 let currentSession = null;
 let currentDocument = null;
-
+// dashboard
 document.addEventListener('DOMContentLoaded', () => {
   if (!TOKEN) {
     window.location.href = 'auth.html';
