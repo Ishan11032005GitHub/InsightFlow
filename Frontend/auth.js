@@ -158,7 +158,6 @@
 
       const data = await res.json().catch(()=> ({}));
       if(!res.ok) throw new Error(data.message || "Signup failed");
-
       
       if(data.token){
         localStorage.setItem("token", data.token);
