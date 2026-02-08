@@ -8,7 +8,6 @@
 
   const signinForm = document.getElementById("signinForm");
   const signupForm = document.getElementById("signupForm");
-
  
   let API_BASE = null;
 
