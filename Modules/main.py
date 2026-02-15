@@ -1,4 +1,4 @@
-# main
+# mai
 from file_manager import FileManager
 from data_processor import DataProcessor
 from report_generator import ReportGenerator
