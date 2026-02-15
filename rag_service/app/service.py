@@ -8,7 +8,7 @@ from app.schemas import IngestRequest, QueryRequest
 from app import qdrant_store
 from app.llm import embed, chat
 
-# Simple chunker (replace with RecursiveCharacterTextSplitter if you want
+# Simple chunker (replace with RecursiveCharacterTextSplitter if y
 def chunk_text(text: str, chunk_size: int = 1000, overlap: int = 150) -> List[str]:
     if not text:
         return []
