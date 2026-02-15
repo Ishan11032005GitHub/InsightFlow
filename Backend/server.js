@@ -26,15 +26,23 @@ const rawOrigins = process.env.CORS_ORIGINS || 'http://127.0.0.1:5501,http://loc
 const allowedOrigins = rawOrigins.split(',').map(o => o.trim()).filter(Boolean);
 
 const corsOptions = {
-  origin: function(origin, callback) {
-    // allow requests with no origin (curl, mobile apps)
+  origin: function (origin, callback) {
+    // allow requests with no origin (curl, mobile apps, file://)
     if (!origin) return callback(null, true);
+
+    // Allow any localhost/127.0.0.1 origin dynamically to prevent CORS issues on different ports
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+
     if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
+
+    console.log('Blocked by CORS:', origin);
     return callback(new Error('CORS policy: origin not allowed'));
   },
   credentials: true,
-  methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization'],
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['Authorization']
 };
 
@@ -95,7 +103,7 @@ let globalServer = null; // Keep reference to prevent GC
         logger.error('Error starting server:', err);
       }
     }
-    
+
     if (!globalServer) {
       throw new Error('Could not start server on any available port');
     }
