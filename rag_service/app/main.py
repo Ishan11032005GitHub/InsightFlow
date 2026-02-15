@@ -6,7 +6,7 @@ app = FastAPI(title="InsightFlow RAG Service", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten in produ
+    allow_origins=["*"],  # tighten in pro
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
