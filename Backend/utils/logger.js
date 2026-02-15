@@ -1,4 +1,4 @@
-// Simple logger wrapper. Beginners can swap this for winston if desired.
+//// Simple logger wrapper. Beginners can swap this for winston if desired.
 const util = require('util');
 
 function info(...args) {

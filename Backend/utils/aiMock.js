@@ -1,7 +1,7 @@
-/**
- * Google Gemini AI Integration
- * Uses gemini-flash-latest model for report generation and PDF chat
- */
+// /**
+//  * Google Gemini AI Integration
+//  * Uses gemini-flash-latest model for report generation and PDF chat
+//  */
 
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });

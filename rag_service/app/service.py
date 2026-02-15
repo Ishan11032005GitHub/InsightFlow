@@ -97,8 +97,7 @@ def query_rag(req: QueryRequest) -> Dict[str, Any]:
             "score": float(h.score) if h.score is not None else None,
             "text": txt[:500]
         })
-        context_blocks.append(f"[page {pl.get('page')}]
-{txt}")
+        context_blocks.append(f"[page {pl.get('page')}]\n{txt}")
 
     context = "\n\n---\n\n".join(context_blocks[: req.top_k])
 

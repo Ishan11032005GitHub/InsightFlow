@@ -1,75 +1,527 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>InsightFlow | Automated Analytics</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InsightFlow | The Future of Analytics</title>
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;800&display=swap"
+    rel="stylesheet">
 
+  <!-- Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
+  <!-- Styles -->
   <link rel="stylesheet" href="base.css">
   <link rel="stylesheet" href="intro.css">
 </head>
 
 <body>
-<div class="ambient-layer"></div>
+  <!-- Dynamic Background -->
+  <div class="ambient-layer"></div>
+  <canvas id="bg-canvas"></canvas>
 
-  
-<header class="topbar">
-  <div class="topbar-inner">
-    <div class="brand">
-      <span class="brand-dot"></span>
-      <span class="brand-name">InsightFlow</span>
-    </div>
-
-    <nav class="topnav">
-      <a href="#features">Features</a>
-      <a href="#workflow">Workflow</a>
-    </nav>
-
-    <div class="top-actions">
-      <button class="icon-btn" id="themeToggle" title="Toggle theme">
-        <i data-lucide="moon"></i>
-      </button>
-      <a class="btn btn-outline" href="signin.html">
-        <i data-lucide="user"></i> Sign in
+  <!-- Navigation -->
+  <nav class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <a href="#" class="brand">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
+          style="filter: drop-shadow(0 0 10px rgba(124, 92, 255, 0.5));">
+          <path d="M4 16C4 22.6274 9.37258 28 16 28C22.6274 28 28 22.6274 28 16" stroke="url(#logo_grad)"
+            stroke-width="3" stroke-linecap="round" />
+          <path d="M16 4V16L24 20" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="16" cy="16" r="2" fill="#00f3ff" />
+          <defs>
+            <linearGradient id="logo_grad" x1="4" y1="16" x2="28" y2="16" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#7C5CFF" />
+              <stop offset="1" stop-color="#00F3FF" />
+            </linearGradient>
+          </defs>
+        </svg>
+        InsightFlow
       </a>
+
+      <div class="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how-it-works" class="nav-link">Workflow</a>
+        <a href="#about" class="nav-link">About</a>
+      </div>
+
+      <div style="display: flex; gap: 16px;">
+        <a href="signin.html" class="btn btn-outline">Log in</a>
+        <a href="signup.html" class="btn btn-primary">Get Started</a>
+      </div>
     </div>
-  </div>
-</header>
+  </nav>
 
-<section class="hero">
-  <div class="hero-inner">
-    <div class="badge glass">
-      <i data-lucide="sparkles"></i>
-      Automated Analytics + Document Chat
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-visuals">
+      <div class="data-core-container">
+        <div class="data-core">
+          <div class="core-ring ring-1"></div>
+          <div class="core-ring ring-2"></div>
+          <div class="core-ring ring-3"></div>
+          <div class="core-center"></div>
+
+          <!-- Floating Data Artifacts -->
+          <div class="floating-icon icon-csv"><i data-lucide="file-spreadsheet"></i> CSV</div>
+          <div class="floating-icon icon-sql"><i data-lucide="database"></i> SQL</div>
+          <div class="floating-icon icon-pdf"><i data-lucide="file-text"></i> PDF</div>
+          <div class="floating-icon icon-ai"><i data-lucide="sparkles"></i> AI</div>
+
+          <!-- Outer Orbit Data Artifacts -->
+          <div class="floating-icon icon-json"><i data-lucide="code"></i> JSON</div>
+          <div class="floating-icon icon-api"><i data-lucide="globe"></i> API</div>
+          <div class="floating-icon icon-xlsx"><i data-lucide="table"></i> XLSX</div>
+          <div class="floating-icon icon-chart"><i data-lucide="bar-chart"></i> Chart</div>
+
+          <!-- HUD & Radar Effects -->
+          <div class="hud-layer">
+            <div class="hud-ring-dashed"></div>
+            <div class="hud-scan-beam"></div>
+            <div class="hud-stat stat-1">CPU: 98%</div>
+            <div class="hud-stat stat-2">MEM: 12TB</div>
+            <div class="hud-stat stat-3">NET: 10Gbps</div>
+            <div class="hud-grid"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <h1 class="hero-title">
-      The Future of <span class="gradient-text">Insight Automation</span>
-    </h1>
+    <div class="hero-content">
+      <div class="hero-badge animate-fade-in">
+        <i data-lucide="sparkles" width="16"></i>
+        <span>Next-Gen Analytics Engine</span>
+      </div>
 
-    <p class="hero-sub">
-      Upload data. Chat with documents. Get decisions faster.
-    </p>
+      <h1 class="hero-title animate-fade-in-delayed">
+        Defy the Limits of <br>
+        <span class="text-gradient glitch-text" data-text="Data Intelligence">Data Intelligence</span>
+      </h1>
 
-    <div class="hero-cta">
-      <a class="btn btn-primary btn-lg" href="signup.html">Get Started</a>
-      <a class="btn btn-outline btn-lg" href="#features">Learn More</a>
+      <p class="hero-subtitle stagger-parent">
+        Experience the first anti-gravity data workspace.
+        Transform raw numbers into floating, interactive insights with zero friction.
+      </p>
+
+      <div class="stagger-parent" style="display: flex; justify-content: center; gap: 20px;">
+        <a href="signup.html" class="btn btn-primary btn-lg">Start Free Trial</a>
+        <a href="#demo" class="btn btn-outline btn-lg">
+          <i data-lucide="play-circle"></i> Watch Demo
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="container" id="features">
+    <div class="features-grid">
+      <div class="feature-card glass">
+        <div class="feature-icon">
+          <i data-lucide="zap"></i>
+        </div>
+        <h3>Instant Processing</h3>
+        <p>Analyze millions of rows in milliseconds using our hyper-optimized, edge-compute engine.</p>
+      </div>
+
+      <div class="feature-card glass">
+        <div class="feature-icon">
+          <i data-lucide="layers"></i>
+        </div>
+        <h3>Multi-Dimensional Views</h3>
+        <p>Visualize data in 3D space. Rotate, zoom, and explore your metrics like never before.</p>
+      </div>
+
+      <div class="feature-card glass">
+        <div class="feature-icon">
+          <i data-lucide="brain-circuit"></i>
+        </div>
+        <h3>AI-Powered Insights</h3>
+        <p>Our neural networks detect anomalies and predict trends before they happen.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Floating Interface Mockup -->
+  <section class="floating-ui-section">
+    <div class="interface-mockup glass">
+      <div class="mockup-header">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <div style="margin-left:auto; font-size:12px; color:var(--text-muted);">dashboard_v3.0.exe</div>
+      </div>
+      <div style="padding: 40px; display: grid; gap: 30px; grid-template-columns: 2fr 1fr; height: 100%;">
+
+        <!-- Mock Charts -->
+        <div class="glass" style="padding: 20px; display: flex; align-items: flex-end; gap: 10px;">
+          <div style="flex:1; background:var(--primary); height: 40%; border-radius: 4px; opacity: 0.5;"></div>
+          <div style="flex:1; background:var(--accent-cyan); height: 70%; border-radius: 4px; opacity: 0.8;"></div>
+          <div style="flex:1; background:var(--accent-pink); height: 50%; border-radius: 4px; opacity: 0.6;"></div>
+          <div style="flex:1; background:var(--accent-blue); height: 90%; border-radius: 4px;"></div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          <div class="glass" style="padding: 20px; flex: 1;">
+            <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 10px;">Speed of Report Generation
+            </div>
+            <div style="font-size: 32px; font-weight: 700; color: var(--accent-cyan);">0.45s</div>
+            <div style="color: var(--accent-green); font-size: 12px;">+300% vs Manual</div>
+          </div>
+          <div class="glass" style="padding: 20px; flex: 1;">
+            <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 10px;">AI Report Accuracy</div>
+            <div style="font-size: 32px; font-weight: 700; color: var(--accent-pink);">99.9%</div>
+            <div style="color: var(--accent-green); font-size: 12px;">Validated by Human Review</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Workflow / How it Works -->
+  <section class="container" id="how-it-works" style="padding: 100px 24px;">
+    <div style="text-align: center; margin-bottom: 80px;">
+      <h2 class="hero-title" style="font-size: 48px; margin-bottom: 20px;">
+        Three Steps to <span class="text-gradient">Intelligence</span>
+      </h2>
+      <p style="color: var(--text-secondary);">Streamlined architecture for maximum efficiency.</p>
     </div>
 
-    <div class="hero-stats">
-      <div class="stat glass"><b>2 Modes</b><span>Data + PDF Chat</span></div>
-      <div class="stat glass"><b>MERN</b><span>Auth Ready</span></div>
-      <div class="stat glass"><b>Exports</b><span>CSV & Charts</span></div>
-    </div>
-  </div>
-</section>
+    <div class="steps-grid">
+      <!-- Step 1 -->
+      <div class="step-card glass">
+        <div class="step-number">01</div>
+        <div class="step-icon"><i data-lucide="upload-cloud"></i></div>
+        <h3>Ingest Data</h3>
+        <p>Drag & drop your CSVs, Excel files, or connect directly to your SQL database. We handle the cleaning.</p>
+      </div>
 
-<script src="intro.js"></script>
-<script>lucide.createIcons()</script>
+      <!-- Arrow -->
+      <div class="step-arrow"><i data-lucide="arrow-right"></i></div>
+
+      <!-- Step 2 -->
+      <div class="step-card glass">
+        <div class="step-number">02</div>
+        <div class="step-icon"><i data-lucide="cpu"></i></div>
+        <h3>AI Processing</h3>
+        <p>Our Neural Engine scans for correlations, anomalies, and forecasting opportunities instantly.</p>
+      </div>
+
+      <!-- Arrow -->
+      <div class="step-arrow"><i data-lucide="arrow-right"></i></div>
+
+      <!-- Step 3 -->
+      <div class="step-card glass">
+        <div class="step-number">03</div>
+        <div class="step-icon"><i data-lucide="file-check"></i></div>
+        <h3>Generate Report</h3>
+        <p>Receive a comprehensive, board-ready PDF report with interactive charts and strategic summaries.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Report Preview Section 3D -->
+  <section class="container" style="padding-bottom: 200px; padding-top: 50px; perspective: 1000px;">
+    <div style="text-align: center; margin-bottom: 60px;">
+      <h2 style="font-size: 36px; margin-bottom: 20px;">Automated <span class="text-gradient">Intelligence</span></h2>
+      <p style="color: var(--text-secondary);">Your insights, beautifully packaged and board-ready.</p>
+    </div>
+
+    <!-- 3D Stack Container -->
+    <div class="report-stack-container">
+
+      <!-- Report Page 3 (Marketing Report) -->
+      <div class="report-page page-3 float-delay-2">
+        <div class="report-header-top">
+          <i data-lucide="target" style="color: var(--accent-pink);"></i>
+          <span>Marketing ROI Analysis</span>
+          <div class="badge-mock"
+            style="color: var(--accent-pink); border-color: rgba(189,0,255,0.2); background: rgba(189,0,255,0.1);">DRAFT
+          </div>
+        </div>
+        <div class="report-content-mock">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <div>
+              <div style="font-size: 10px; color:#888;">CAMPAIGN A</div>
+              <div style="font-size: 14px; font-weight:700;">+42%</div>
+            </div>
+            <div>
+              <div style="font-size: 10px; color:#888;">CAMPAIGN B</div>
+              <div style="font-size: 14px; font-weight:700;">+18%</div>
+            </div>
+            <div>
+              <div style="font-size: 10px; color:#888;">CAMPAIGN C</div>
+              <div style="font-size: 14px; font-weight:700; color: #ef4444;">-5%</div>
+            </div>
+          </div>
+          <div class="line" style="width: 100%;"></div>
+          <div class="line" style="width: 90%;"></div>
+          <div class="line" style="width: 95%;"></div>
+        </div>
+      </div>
+
+      <!-- Report Page 2 (Sales Report) -->
+      <div class="report-page page-2 float-delay-1">
+        <div class="report-header-top">
+          <i data-lucide="trending-up" style="color: var(--accent-blue);"></i>
+          <span>Q3 Sales Performance</span>
+          <div class="badge-mock"
+            style="color: var(--accent-blue); border-color: rgba(0,102,255,0.2); background: rgba(0,102,255,0.1);">
+            REVIEW</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+          <div class="donut-chart-mock"></div>
+          <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px;">
+              <span>Enterprise</span><span>65%</span>
+            </div>
+            <div class="progress-bar-mock">
+              <div class="fill" style="width: 65%;"></div>
+            </div>
+
+            <div
+              style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; margin-top: 10px;">
+              <span>SMB</span><span>35%</span>
+            </div>
+            <div class="progress-bar-mock">
+              <div class="fill" style="width: 35%; background: var(--text-muted);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-content-mock">
+          <div class="line" style="width: 100%;"></div>
+          <div class="line" style="width: 80%;"></div>
+        </div>
+      </div>
+
+      <!-- Report Page 1 (Executive Summary) -->
+      <div class="report-page page-1 float">
+        <div class="report-glass-shine"></div>
+        <div class="report-header-top">
+          <i data-lucide="file-bar-chart-2" style="color: var(--accent-cyan);"></i>
+          <span>Executive Summary: 2026 Forecast</span>
+          <div class="badge-mock">FINAL</div>
+        </div>
+
+        <div class="main-chart-mock">
+          <div class="bar" style="height: 40%;">
+            <div class="bar-val">$40k</div>
+          </div>
+          <div class="bar" style="height: 70%;">
+            <div class="bar-val">$70k</div>
+          </div>
+          <div class="bar" style="height: 50%;">
+            <div class="bar-val">$50k</div>
+          </div>
+          <div class="bar" style="height: 85%;">
+            <div class="bar-val">$85k</div>
+          </div>
+          <div class="bar" style="height: 60%;">
+            <div class="bar-val">$60k</div>
+          </div>
+        </div>
+
+        <div class="report-summary-text">
+          <div class="line" style="width: 100%;"></div>
+          <div class="line" style="width: 95%;"></div>
+          <div class="line" style="width: 80%;"></div>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center;">
+          <button class="btn btn-primary btn-sm" style="font-size: 12px; padding: 8px 16px;">Export PDF</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Integrations / Connectors -->
+  <section class="container" style="padding-bottom: 100px;">
+    <div style="text-align: center; margin-bottom: 80px;">
+      <h2 class="hero-title" style="font-size: 48px; margin-bottom: 20px;">
+        Connect Your <span class="text-gradient">Data Universe</span>
+      </h2>
+      <p style="color: var(--text-secondary);">Native integrations for every modern data stack.</p>
+    </div>
+
+    <div class="glass"
+      style="padding: 60px; display: flex; flex-wrap: wrap; justify-content: center; gap: 60px; align-items: center; position: relative;">
+      <div class="glow-effect" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60%; height: 60%;">
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 2;">
+        <div class="step-icon"
+          style="margin: 0; background: rgba(56, 139, 253, 0.1); border-color: rgba(56, 139, 253, 0.3); color: #388bfd;">
+          <i data-lucide="database"></i>
+        </div>
+        <span style="font-weight: 600;">PostgreSQL</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 2;">
+        <div class="step-icon"
+          style="margin: 0; background: rgba(255, 147, 41, 0.1); border-color: rgba(255, 147, 41, 0.3); color: #ff9329;">
+          <i data-lucide="cloud"></i>
+        </div>
+        <span style="font-weight: 600;">AWS S3</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 2;">
+        <div class="step-icon"
+          style="margin: 0; background: rgba(22, 163, 74, 0.1); border-color: rgba(22, 163, 74, 0.3); color: #16a34a;">
+          <i data-lucide="table"></i>
+        </div>
+        <span style="font-weight: 600;">Excel / CSV</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 2;">
+        <div class="step-icon"
+          style="margin: 0; background: rgba(47, 129, 247, 0.1); border-color: rgba(47, 129, 247, 0.3); color: #29b6f6;">
+          <i data-lucide="snowflake"></i>
+        </div>
+        <span style="font-weight: 600;">Snowflake</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 2;">
+        <div class="step-icon"
+          style="margin: 0; background: rgba(234, 179, 8, 0.1); border-color: rgba(234, 179, 8, 0.3); color: #eab308;">
+          <i data-lucide="bar-chart-2"></i>
+        </div>
+        <span style="font-weight: 600;">Tableau</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Security -->
+  <section class="container"
+    style="padding-bottom: 120px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
+    <div>
+      <h2 style="font-size: 42px; margin-bottom: 24px; font-weight: 800;">Fortress-Grade <br><span
+          style="color: var(--accent-green);">Security</span></h2>
+      <p style="font-size: 18px; color: var(--text-secondary); margin-bottom: 30px;">
+        Your data never leaves our encrypted enclave. We process everything in transient memory containers that are
+        wiped instantly after analysis.
+      </p>
+      <ul class="pricing-list" style="font-size: 18px;">
+        <li style="margin-bottom: 16px;"><i data-lucide="shield-check"
+            style="width: 24px; height: 24px; color: var(--accent-green);"></i> SOC 2 Type II Certified</li>
+        <li style="margin-bottom: 16px;"><i data-lucide="lock"
+            style="width: 24px; height: 24px; color: var(--accent-green);"></i> End-to-End AES-256 Encryption</li>
+        <li style="margin-bottom: 16px;"><i data-lucide="server"
+            style="width: 24px; height: 24px; color: var(--accent-green);"></i> Private Cloud Deployment Options</li>
+      </ul>
+    </div>
+    <div class="glass"
+      style="height: 400px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+      <div class="glow-effect"
+        style="background: radial-gradient(circle, rgba(35, 134, 54, 0.2) 0%, transparent 70%); width: 80%; height: 80%; animation: pulse 4s infinite;">
+      </div>
+      <i data-lucide="shield"
+        style="width: 120px; height: 120px; color: var(--accent-green); filter: drop-shadow(0 0 20px rgba(35, 134, 54, 0.5));"></i>
+    </div>
+  </section>
+
+
+
+  <!-- About Us Section -->
+  <section class="container" id="about" style="padding-bottom: 120px;">
+    <div class="glass" style="padding: 80px; border-radius: 40px; position: relative; overflow: hidden;">
+      <div class="glow-effect"
+        style="top: -20%; right: -10%; opacity: 0.15; background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%);">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: center;">
+        <div>
+          <div class="hero-badge" style="margin-left: 0; margin-bottom: 24px;">
+            <i data-lucide="info" width="16"></i>
+            <span>Our Mission</span>
+          </div>
+          <h2 style="font-size: 42px; margin-bottom: 24px; font-weight: 800; line-height: 1.1;">
+            Empowering <span class="text-gradient">Data-Driven</span> Decision Making
+          </h2>
+          <p style="font-size: 18px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 32px;">
+            InsightFlow was born from a simple belief: that complex data shouldn't require a PhD to understand. Our team
+            of engineers and data scientists are dedicated to building the bridge between raw information and strategic
+            action.
+          </p>
+          <div style="display: flex; gap: 40px;">
+            <div>
+              <div style="font-size: 32px; font-weight: 800; color: var(--accent-cyan);">500+</div>
+              <p class="tiny muted" style="text-transform: uppercase; letter-spacing: 1px;">Global Users</p>
+            </div>
+            <div>
+              <div style="font-size: 32px; font-weight: 800; color: var(--accent-pink);">10B+</div>
+              <p class="tiny muted" style="text-transform: uppercase; letter-spacing: 1px;">Rows Processed</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass"
+          style="padding: 40px; border-radius: 24px; background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);">
+          <h3 style="margin-bottom: 24px;">Core Values</h3>
+          <div style="display: grid; gap: 20px;">
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+              <div class="step-icon" style="margin: 0; width: 42px; height: 42px; flex-shrink: 0;"><i
+                  data-lucide="shield"></i></div>
+              <div>
+                <h4 style="margin-bottom: 4px;">Privacy First</h4>
+                <p class="tiny muted">Your data security is our highest priority, built into every line of code.</p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+              <div class="step-icon" style="margin: 0; width: 42px; height: 42px; flex-shrink: 0;"><i
+                  data-lucide="zap"></i></div>
+              <div>
+                <h4 style="margin-bottom: 4px;">Lightning Velocity</h4>
+                <p class="tiny muted">Insights delivered in milliseconds, not hours or days.</p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 16px; align-items: flex-start;">
+              <div class="step-icon" style="margin: 0; width: 42px; height: 42px; flex-shrink: 0;"><i
+                  data-lucide="users"></i></div>
+              <div>
+                <h4 style="margin-bottom: 4px;">Human Centric</h4>
+                <p class="tiny muted">Technology designed to augment human intelligence, not replace it.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="border-top: 1px solid var(--border); padding: 80px 0; background: #020202; margin-top: 100px;">
+    <div class="container" style="text-align: center;">
+      <div class="brand" style="justify-content: center; margin-bottom: 20px;">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
+          style="margin-right: 10px;">
+          <path d="M4 16C4 22.6274 9.37258 28 16 28C22.6274 28 28 22.6274 28 16" stroke="url(#logo_grad_footer)"
+            stroke-width="3" stroke-linecap="round" />
+          <path d="M16 4V16L24 20" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="16" cy="16" r="2" fill="#00f3ff" />
+          <defs>
+            <linearGradient id="logo_grad_footer" x1="4" y1="16" x2="28" y2="16" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#7C5CFF" />
+              <stop offset="1" stop-color="#00F3FF" />
+            </linearGradient>
+          </defs>
+        </svg> InsightFlow
+      </div>
+      <p>&copy; 2026 InsightFlow Inc. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="intro.js"></script>
 </body>
+
 </html>

@@ -16,15 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeEventListeners() {
-  
+
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab));
   });
 
-  
+
   const uploadZone = document.getElementById('uploadZone');
   const fileInput = document.getElementById('fileInput');
-  
+
   uploadZone.addEventListener('click', () => fileInput.click());
   uploadZone.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -43,7 +43,7 @@ function initializeEventListeners() {
     if (e.target.files[0]) handleFileUpload(e.target.files[0]);
   });
 
-  
+
   document.getElementById('newSessionBtn').addEventListener('click', () => {
     document.getElementById('newSessionModal').classList.add('active');
   });
@@ -53,23 +53,23 @@ function initializeEventListeners() {
     document.getElementById('newSessionModal').classList.remove('active');
   });
 
-  
+
   document.getElementById('sendBtn').addEventListener('click', sendMessage);
   document.getElementById('chatInput').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') sendMessage();
   });
 
-  
+
   document.getElementById('themeToggle').addEventListener('click', toggleTheme);
   document.getElementById('logoutBtn').addEventListener('click', logout);
 }
 
 function switchTab(tabName) {
-  
+
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
 
-  
+
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   document.getElementById(tabName).classList.add('active');
 }
@@ -99,13 +99,13 @@ async function handleFileUpload(file) {
     const data = await response.json();
     currentDocument = data.document;
 
-    
+
     document.getElementById('fileInput').value = '';
 
-    
+
     addMessage('assistant', data.initialAnalysis);
 
-    
+
     await loadDocuments();
     showAnalysisOptions();
 
@@ -156,7 +156,7 @@ async function loadDocuments() {
 function showAnalysisOptions() {
   document.getElementById('analysisCard').style.display = 'block';
   const analysisOptions = document.getElementById('analysisOptions');
-  
+
   const options = [
     { type: 'summary', label: '📊 Summary', description: 'Statistical summary' },
     { type: 'trends', label: '📈 Trends', description: 'Trend analysis' },
@@ -200,10 +200,10 @@ async function runAnalysis(analysisType) {
 
     const result = await response.json();
 
-    
+
     addMessage('assistant', `**${analysisType.toUpperCase()} Analysis**\n\n${result.aiInsights.summary}`);
 
-    
+
     displayAnalysisResults(result);
 
     showAlert('Analysis complete', 'success');
@@ -216,7 +216,7 @@ async function runAnalysis(analysisType) {
 function displayAnalysisResults(result) {
   const resultsList = document.getElementById('resultsList');
   const noResults = document.getElementById('noResults');
-  
+
   noResults.style.display = 'none';
 
   const html = `
@@ -230,7 +230,7 @@ function displayAnalysisResults(result) {
 
   resultsList.innerHTML += html;
 
-  
+
   switchTab('results');
 }
 
@@ -244,7 +244,7 @@ async function sendMessage() {
     return;
   }
 
-  
+
   addMessage('user', message);
   input.value = '';
 
@@ -319,7 +319,7 @@ function selectSession(sessionId, title) {
   document.getElementById('documentsList').innerHTML = '';
   document.getElementById('analysisCard').style.display = 'none';
   document.getElementById('documentsCard').style.display = 'none';
-  
+
   loadDocuments();
   showAlert(`Session: ${title}`, 'success');
 }
@@ -349,13 +349,13 @@ async function createNewSession() {
     const data = await response.json();
     currentSession = data.session;
 
-    
+
     document.getElementById('sessionTitle').value = '';
     document.getElementById('sessionDescription').value = '';
     document.getElementById('sessionMode').value = 'data_analysis';
     document.getElementById('newSessionModal').classList.remove('active');
 
-    
+
     await loadSessions();
     showAlert(`Session created: ${title}`, 'success');
   } catch (error) {
@@ -373,7 +373,7 @@ function analyzeDocument(documentId, fileType) {
 async function downloadDocument(documentId) {
   try {
     showAlert('Downloading...', 'info');
-    
+
     showAlert('Download started', 'success');
   } catch (error) {
     showAlert(`Download failed: ${error.message}`, 'error');
@@ -383,7 +383,7 @@ async function downloadDocument(documentId) {
 function exportResult(btn) {
   const card = btn.closest('.result-card');
   const text = card.innerText;
-  
+
   const blob = new Blob([text], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -398,24 +398,27 @@ function showAlert(message, type = 'info') {
   const alert = document.createElement('div');
   alert.className = `alert ${type}`;
   alert.innerHTML = `<span>${message}</span>`;
-  
+
   container.appendChild(alert);
-  
+
   if (type !== 'error') {
     setTimeout(() => alert.remove(), 3000);
   }
 }
 
 function toggleTheme() {
-  document.body.classList.toggle('dark-mode');
-  localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  document.getElementById('themeToggle').textContent = next === 'dark' ? '🌙' : '☀️';
 }
 
 function applyTheme() {
-  if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark-mode');
-    document.getElementById('themeToggle').textContent = '☀️';
-  }
+  const saved = localStorage.getItem('theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '🌙' : '☀️';
 }
 
 function logout() {

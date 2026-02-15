@@ -1,4 +1,4 @@
-(async function(){
+(async function () {
   const html = document.documentElement;
   const toggle = document.getElementById("themeToggle");
 
@@ -8,17 +8,17 @@
 
   const signinForm = document.getElementById("signinForm");
   const signupForm = document.getElementById("signupForm");
- 
+
   let API_BASE = null;
 
   async function detectApiBase() {
 
-      const start = 6001;
+    const start = 6001;
     const end = 6011;
     for (let p = start; p <= end; p++) {
       const url = `http://localhost:${p}/api/config`;
       try {
-      
+
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), 1500);
         const res = await fetch(url, { signal: controller.signal });
@@ -28,17 +28,17 @@
         if (data && data.apiBase) return data.apiBase;
         return `http://localhost:${p}`;
       } catch (err) {
-        
+
         continue;
       }
     }
-    
-      return 'http://localhost:6001';
+
+    return 'http://localhost:6001';
   }
   API_BASE = await detectApiBase();
   console.info('Detected API_BASE ->', API_BASE);
 
-  
+
   try {
     const badge = document.createElement('div');
     badge.id = 'api-base-badge';
@@ -56,11 +56,11 @@
     document.body.appendChild(badge);
   } catch (e) { /* ignore if DOM not ready */ }
 
-  
+
   const saved = localStorage.getItem("theme") || "dark";
   html.setAttribute("data-theme", saved);
 
-  function refreshIcon(){
+  function refreshIcon() {
     toggle.innerHTML = html.getAttribute("data-theme") === "dark"
       ? '<i data-lucide="moon"></i>'
       : '<i data-lucide="sun"></i>';
@@ -73,7 +73,7 @@
     refreshIcon();
   });
 
-  
+
   tabs.forEach(t => {
     t.addEventListener("click", () => {
       tabs.forEach(x => x.classList.remove("active"));
@@ -84,23 +84,24 @@
     });
   });
 
-  function showMsg(type, text){
-    msg.classList.remove("hidden","validation-error","validation-success");
-    msg.classList.add(type === "error" ? "validation-error":"validation-success");
-    msg.innerHTML = `<i data-lucide="${type==="error"?"alert-circle":"check-circle"}"></i><span>${text}</span>`;
+  function showMsg(type, text) {
+    msg.classList.remove("hidden", "validation-error", "validation-success");
+    msg.classList.add(type === "error" ? "validation-error" : "validation-success");
+    msg.innerHTML = `<i data-lucide="${type === "error" ? "alert-circle" : "check-circle"}"></i><span>${text}</span>`;
     lucide?.createIcons();
   }
-  function hideMsg(){
+  function hideMsg() {
     msg.classList.add("hidden");
   }
 
- 
-  if(localStorage.getItem("token")){
+
+  if (localStorage.getItem("token")) {
     window.location.href = "dashboard.html";
     return;
   }
 
-  
+
+  // Handle Sign In
   signinForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     hideMsg();
@@ -108,33 +109,46 @@
     const email = document.getElementById("signinEmail").value.trim();
     const password = document.getElementById("signinPassword").value;
 
-    if(!email || password.length < 6){
-      showMsg("error","Enter valid email and password (min 6).");
+    if (!email || password.length < 6) {
+      showMsg("error", "Please enter a valid email and password.");
       return;
     }
 
-    try{
+    const btn = signinForm.querySelector('button');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="loader"></i> Signing in...';
+    btn.disabled = true;
+
+    try {
       const res = await fetch(`${API_BASE}/api/auth/login`, {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
       });
 
-      const data = await res.json().catch(()=> ({}));
-      if(!res.ok) throw new Error(data.message || "Login failed");
+      const data = await res.json().catch(() => ({}));
 
-      
+      if (!res.ok) throw new Error(data.message || "Invalid credentials. Please try again.");
+
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user || { email }));
 
-      showMsg("success","Signed in. Redirecting...");
-      setTimeout(()=> window.location.href="dashboard.html", 600);
-    }catch(err){
-      showMsg("error", err.message);
+      showMsg("success", "Welcome back! Redirecting...");
+      setTimeout(() => window.location.href = "dashboard.html", 800);
+
+    } catch (err) {
+      console.error(err);
+      if (err.message.includes('fetch')) {
+        showMsg("error", `Connection failed. Is the backend running at ${API_BASE}?`);
+      } else {
+        showMsg("error", err.message);
+      }
+      btn.innerHTML = originalText;
+      btn.disabled = false;
     }
   });
 
-  
+  // Handle Sign Up
   signupForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     hideMsg();
@@ -143,35 +157,41 @@
     const email = document.getElementById("signupEmail").value.trim();
     const password = document.getElementById("signupPassword").value;
 
-    if(!username || !email || password.length < 6){
-      showMsg("error","Fill all fields. Password min 6.");
+    if (!username || !email || password.length < 6) {
+      showMsg("error", "All fields are required. Password must be 6+ chars.");
       return;
     }
 
-    try{
+    const btn = signupForm.querySelector('button');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="loader"></i> Creating account...';
+    btn.disabled = true;
+
+    try {
       const res = await fetch(`${API_BASE}/api/auth/register`, {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password })
       });
 
-      const data = await res.json().catch(()=> ({}));
-      if(!res.ok) throw new Error(data.message || "Signup failed");
-      
-      if(data.token){
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.message || "Registration failed. Email might be in use.");
+
+      if (data.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user || { name: username, email }));
-        showMsg("success","Account created. Redirecting...");
-        setTimeout(()=> window.location.href="dashboard.html", 600);
+        showMsg("success", "Account created successfully! Redirecting...");
+        setTimeout(() => window.location.href = "dashboard.html", 800);
       } else {
-        showMsg("success","Account created. Please sign in.");
-        document.querySelector('.tab[data-tab="signin"]')?.click();
+        showMsg("success", "Account created! Please log in.");
+        setTimeout(() => window.location.href = "signin.html", 1000);
       }
-    }catch(err){
+    } catch (err) {
       showMsg("error", err.message);
+      btn.innerHTML = originalText;
+      btn.disabled = false;
     }
   });
 
   lucide?.createIcons();
-  refreshIcon();
 })();

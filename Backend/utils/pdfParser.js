@@ -1,7 +1,7 @@
-/**
- * Simple PDF text extraction
- * Note: For production use, consider more robust solutions like pdf2json or pdfrw
- */
+// /**
+//  * Simple PDF text extraction
+//  * Note: For production use, consider more robust solutions like pdf2json or pdfrw
+//  */
 
 const pdfParse = require('pdf-parse');
 

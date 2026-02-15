@@ -1,7 +1,7 @@
-/**
- * File Type Detector & Parser
- * Identifies file types and extracts content
- */
+// /**
+//  * File Type Detector & Parser
+//  * Identifies file types and extracts content
+//  */
 
 const fs = require('fs');
 const path = require('path');
