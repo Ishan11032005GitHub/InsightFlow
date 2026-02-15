@@ -24,7 +24,8 @@ module.exports = async function init(sequelize) {
     mimeType: { type: DataTypes.STRING },
     sizeBytes: { type: DataTypes.INTEGER },
     storagePath: { type: DataTypes.STRING, allowNull: false },
-    projectId: { type: DataTypes.STRING, allowNull: false },
+    projectId: { type: DataTypes.STRING, allowNull: false, defaultValue: 'default-rag-project' },
+    ownerId: { type: DataTypes.INTEGER, allowNull: true }, // Explicitly add foreign key field
     ingestionStatus: { type: DataTypes.STRING, defaultValue: 'queued' }, // queued|ingesting|ingested|failed
     ingestionMeta: { type: DataTypes.JSON }
   });
