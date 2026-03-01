@@ -1,7 +1,7 @@
 const db = require('../config/db');
 const aiMock = require('../utils/aiMock');
 
-// Generate a human-readable report from structured data usin
+// Generate a human-readable report from structured data usi
 exports.generateReport = async (req, res) => {
   const { data, save = true, title } = req.body;
   if (!data) return res.status(400).json({ message: 'data field required' });
