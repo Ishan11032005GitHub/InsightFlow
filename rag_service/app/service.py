@@ -1,47 +1,73 @@
 import os
 import uuid
 from typing import List, Dict, Any
+
 from pypdf import PdfReader
 from qdrant_client.http import models as qm
 
 from app.schemas import IngestRequest, QueryRequest
 from app import qdrant_store
-from app.llm import embed, chat
+from app.embeddings import embed
+from app.llm import chat
 
-# Simple chunker (replace with RecursiveCharacterTextSplitter if y
-def chunk_text(text: str, chunk_size: int = 1000, overlap: int = 150) -> List[str]:
-    if not text:
-        return []
+
+def chunk_text(text, chunk_size=800, overlap=150):
+
     chunks = []
-    i = 0
-    n = len(text)
-    while i < n:
-        j = min(i + chunk_size, n)
-        chunks.append(text[i:j])
-        i = max(j - overlap, j)
+
+    start = 0
+
+    while start < len(text):
+
+        end = start + chunk_size
+
+        chunk = text[start:end]
+
+        chunks.append(chunk)
+
+        start += chunk_size - overlap
+
     return chunks
 
-def read_pdf(file_path: str) -> List[Dict[str, Any]]:
+
+def read_pdf(file_path):
+
     reader = PdfReader(file_path)
+
     pages = []
+
     for idx, page in enumerate(reader.pages):
-        txt = page.extract_text() or ""
-        pages.append({"page": idx + 1, "text": txt})
+
+        text = page.extract_text() or ""
+
+        pages.append({
+            "page": idx + 1,
+            "text": text
+        })
+
     return pages
 
-def ingest_pdf(req: IngestRequest) -> Dict[str, Any]:
+
+def ingest_pdf(req: IngestRequest):
+
     if not os.path.exists(req.file_path):
         raise FileNotFoundError(req.file_path)
 
     pages = read_pdf(req.file_path)
 
-    # Prepare chunks
-    payloads = []
     texts = []
+    payloads = []
+
     for p in pages:
-        for chunk in chunk_text(p["text"]):
+
+        chunks = chunk_text(p["text"])
+
+        for chunk in chunks:
+
             if chunk.strip():
+
                 texts.append(chunk)
+
                 payloads.append({
                     "user_id": req.user_id,
                     "project_id": req.project_id,
@@ -52,16 +78,27 @@ def ingest_pdf(req: IngestRequest) -> Dict[str, Any]:
                 })
 
     if not texts:
-        return {"status": "failed", "reason": "No extractable text from PDF"}
+        return {"status": "failed"}
 
     vectors = embed(texts)
+
     dim = len(vectors[0])
+
     qdrant_store.ensure_collection(dim)
 
     points = []
+
     for vec, payload in zip(vectors, payloads):
+
         pid = str(uuid.uuid4())
-        points.append(qm.PointStruct(id=pid, vector=vec, payload=payload))
+
+        points.append(
+            qm.PointStruct(
+                id=pid,
+                vector=vec,
+                payload=payload
+            )
+        )
 
     qdrant_store.upsert(points)
 
@@ -71,55 +108,85 @@ def ingest_pdf(req: IngestRequest) -> Dict[str, Any]:
         "document_id": req.document_id
     }
 
-def query_rag(req: QueryRequest) -> Dict[str, Any]:
-    # Embed query
+
+def query_rag(req: QueryRequest):
+
     qvec = embed([req.message])[0]
 
     hits = qdrant_store.search(
         query_vector=qvec,
         user_id=req.user_id,
         project_id=req.project_id,
-        document_id=req.document_id,
         limit=req.top_k
     )
 
     sources = []
     context_blocks = []
+
     for h in hits:
-        pl = h.payload or {}
-        txt = (pl.get("text") or "").strip()
-        if not txt:
+
+        payload = h.payload or {}
+
+        text = payload.get("text", "").strip()
+
+        if not text:
             continue
+
         sources.append({
-            "doc_id": req.document_id,
-            "file": pl.get("file"),
-            "page": pl.get("page"),
-            "score": float(h.score) if h.score is not None else None,
-            "text": txt[:500]
+            "doc_id": payload.get("document_id"),
+            "file": payload.get("file"),
+            "page": payload.get("page"),
+            "score": h.score,
+            "text": text[:400]
         })
-        context_blocks.append(f"[page {pl.get('page')}]\n{txt}")
 
-    context = "\n\n---\n\n".join(context_blocks[: req.top_k])
+        context_blocks.append(
+            f"(p.{payload.get('page')}) {text}"
+        )
 
-    system = (
-        "You are a strict RAG assistant. Answer ONLY using the provided context. "
-        "If the answer is not in context, say you don't know. "
-        "Always be concise. Include page citations like (p. 3) when relevant."
-    )
+    context = "\n\n".join(context_blocks[:req.top_k])
 
-    user = f"Context:\n{context}\n\nQuestion: {req.message}\nAnswer:"
+    system = """
+You are a strict RAG assistant.
 
-    answer = chat(system=system, user=user)
+Answer ONLY using the provided context.
+
+If the answer is not in the context say:
+"I could not find this in the document."
+
+Always cite page numbers like (p.3)
+"""
+
+    user = f"""
+Context:
+{context}
+
+Question:
+{req.message}
+
+Answer:
+"""
+
+    answer = chat(system, user)
 
     return {
         "answer": answer,
-        "sources": sources[: req.top_k],
+        "sources": sources,
         "metadata": {
-            "retrieved": len(sources),
-            "top_k": req.top_k
+            "retrieved": len(sources)
         }
     }
 
+
 def delete_doc(req):
-    qdrant_store.delete_by_filter(req.user_id, req.project_id, req.document_id)
-    return {"status": "deleted", "document_id": req.document_id}
+
+    qdrant_store.delete_by_filter(
+        req.user_id,
+        req.project_id,
+        req.document_id
+    )
+
+    return {
+        "status": "deleted",
+        "document_id": req.document_id
+    }

@@ -4,24 +4,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-CHAT_MODEL = os.getenv("CHAT_MODEL", "gpt-4o-mini")
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-_client = OpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(
+    api_key=GROQ_API_KEY,
+    base_url="https://api.groq.com/openai/v1"
+)
 
-def embed(texts):
-    # batch embeddings
-    resp = _client.embeddings.create(model=EMBEDDING_MODEL, input=texts)
-    return [d.embedding for d in resp.data]
+MODEL = "llama-3.1-70b-versatile"
+
 
 def chat(system: str, user: str):
-    resp = _client.chat.completions.create(
-        model=CHAT_MODEL,
+
+    resp = client.chat.completions.create(
+        model=MODEL,
         messages=[
             {"role": "system", "content": system},
-            {"role": "user", "content": user},
+            {"role": "user", "content": user}
         ],
-        temperature=0.2,
+        temperature=0.2
     )
+
     return resp.choices[0].message.content
