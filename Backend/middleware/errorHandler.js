@@ -1,4 +1,4 @@
-// Generic Express error handler
+// Generic Express error handle
 module.exports = function (err, req, res, next) {
   console.error(err);
   const status = err.status || 500;
