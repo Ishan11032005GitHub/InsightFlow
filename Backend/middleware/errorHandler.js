@@ -1,4 +1,4 @@
-// Generic Express error hand
+// Generic Express error han
 module.exports = function (err, req, res, next) {
   console.error(err);
   const status = err.status || 500;
