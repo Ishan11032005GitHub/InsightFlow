@@ -1,29 +1,39 @@
 import os
 import uuid
-from typing import List, Dict, Any
 
 from pypdf import PdfReader
 from qdrant_client.http import models as qm
 
-from app.schemas import IngestRequest, QueryRequest
-from app import qdrant_store
-from app.embeddings import embed
+from app.embeddings import batch_embed
 from app.llm import chat
+from app import qdrant_store
+
+
+def normalize_request(req):
+
+    return {
+        "user_id": str(req.get("user_id") or req.get("userId")),
+        "project_id": str(req.get("project_id") or req.get("projectId") or "default"),
+        "document_id": str(req.get("document_id") or req.get("documentId")),
+        "file_path": req.get("file_path") or req.get("filePath"),
+        "original_name": req.get("original_name") or req.get("originalName"),
+        "mime_type": req.get("mime_type") or req.get("mimeType")
+    }
 
 
 def chunk_text(text, chunk_size=800, overlap=150):
 
     chunks = []
-
     start = 0
 
     while start < len(text):
 
-        end = start + chunk_size
+        end = min(start + chunk_size, len(text))
 
-        chunk = text[start:end]
+        chunk = text[start:end].strip()
 
-        chunks.append(chunk)
+        if chunk:
+            chunks.append(chunk)
 
         start += chunk_size - overlap
 
@@ -48,12 +58,16 @@ def read_pdf(file_path):
     return pages
 
 
-def ingest_pdf(req: IngestRequest):
+def ingest_pdf(req):
 
-    if not os.path.exists(req.file_path):
-        raise FileNotFoundError(req.file_path)
+    req = normalize_request(req)
 
-    pages = read_pdf(req.file_path)
+    file_path = os.path.abspath(req["file_path"])
+
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(file_path)
+
+    pages = read_pdf(file_path)
 
     texts = []
     payloads = []
@@ -64,23 +78,18 @@ def ingest_pdf(req: IngestRequest):
 
         for chunk in chunks:
 
-            if chunk.strip():
+            texts.append(chunk)
 
-                texts.append(chunk)
+            payloads.append({
+                "user_id": req["user_id"],
+                "project_id": req["project_id"],
+                "document_id": req["document_id"],
+                "file": req["original_name"],
+                "page": p["page"],
+                "text": chunk
+            })
 
-                payloads.append({
-                    "user_id": req.user_id,
-                    "project_id": req.project_id,
-                    "document_id": req.document_id,
-                    "file": req.original_name,
-                    "page": p["page"],
-                    "text": chunk
-                })
-
-    if not texts:
-        return {"status": "failed"}
-
-    vectors = embed(texts)
+    vectors = batch_embed(texts)
 
     dim = len(vectors[0])
 
@@ -90,11 +99,9 @@ def ingest_pdf(req: IngestRequest):
 
     for vec, payload in zip(vectors, payloads):
 
-        pid = str(uuid.uuid4())
-
         points.append(
             qm.PointStruct(
-                id=pid,
+                id=str(uuid.uuid4()),
                 vector=vec,
                 payload=payload
             )
@@ -104,57 +111,51 @@ def ingest_pdf(req: IngestRequest):
 
     return {
         "status": "ingested",
-        "chunks": len(points),
-        "document_id": req.document_id
+        "chunks": len(points)
     }
 
 
-def query_rag(req: QueryRequest):
+def query_rag(req):
 
-    qvec = embed([req.message])[0]
+    req = normalize_request(req)
+
+    qvec = batch_embed([req["message"]])[0]
 
     hits = qdrant_store.search(
         query_vector=qvec,
-        user_id=req.user_id,
-        project_id=req.project_id,
-        limit=req.top_k
+        user_id=req["user_id"],
+        project_id=req["project_id"],
+        limit=6
     )
 
-    sources = []
     context_blocks = []
 
     for h in hits:
 
         payload = h.payload or {}
 
-        text = payload.get("text", "").strip()
-
-        if not text:
-            continue
-
-        sources.append({
-            "doc_id": payload.get("document_id"),
-            "file": payload.get("file"),
-            "page": payload.get("page"),
-            "score": h.score,
-            "text": text[:400]
-        })
-
         context_blocks.append(
-            f"(p.{payload.get('page')}) {text}"
+        f"""
+            PAGE {payload.get('page')}
+            {text}
+        """
         )
 
-    context = "\n\n".join(context_blocks[:req.top_k])
+    context = "\n\n".join(context_blocks)
 
     system = """
-You are a strict RAG assistant.
+You are a document analysis assistant.
 
-Answer ONLY using the provided context.
+Use the provided document context to answer the question.
 
-If the answer is not in the context say:
-"I could not find this in the document."
+Instructions:
+- If the user asks for a summary, produce a concise summary of the document.
+- If the user asks about a person, extract the relevant details from the document.
+- Quote or reference document sections when useful.
+- If the information truly does not exist in the document, say so.
 
-Always cite page numbers like (p.3)
+Context may contain multiple document chunks.
+Combine them to produce the best answer.
 """
 
     user = f"""
@@ -162,31 +163,24 @@ Context:
 {context}
 
 Question:
-{req.message}
-
-Answer:
+{req["message"]}
 """
 
     answer = chat(system, user)
 
     return {
-        "answer": answer,
-        "sources": sources,
-        "metadata": {
-            "retrieved": len(sources)
-        }
+        "answer": answer
     }
 
 
 def delete_doc(req):
 
+    req = normalize_request(req)
+
     qdrant_store.delete_by_filter(
-        req.user_id,
-        req.project_id,
-        req.document_id
+        req["user_id"],
+        req["project_id"],
+        req["document_id"]
     )
 
-    return {
-        "status": "deleted",
-        "document_id": req.document_id
-    }
+    return {"status": "deleted"}
