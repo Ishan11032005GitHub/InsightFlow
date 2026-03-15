@@ -53,15 +53,28 @@ exports.uploadDocument = async (req, res) => {
     }
     console.log('Document ID:', doc.id);
 
-    // Fire-and-forget ingestion (Mock/Async)
-    console.log('Triggering ingestion at:', RAG_SERVICE_URL);
+    // Trigger ingestion
+    console.log('Triggering ingestion at:', RAG_SERVICE_URL)
+
+    const absolutePath = path.resolve(req.file.path)
+
     axios.post(`${RAG_SERVICE_URL}/v1/ingest`, {
-      document_id: doc.id,
-      project_id: projectId,
-      file_path: req.file.path
-    }).catch(err => {
-      console.warn("RAG ingestion service unavailable (expected in mock):", err.message);
-    });
+      user_id: req.user ? String(req.user.id) : "anonymous",
+      document_id: String(doc.id),
+      project_id: String(projectId),
+      file_path: absolutePath,
+      original_name: req.file.originalname,
+      mime_type: req.file.mimetype
+    })
+    .then(() => {
+      console.log("✓ RAG ingestion triggered")
+    })
+    .catch(err => {
+      console.warn(
+        "RAG ingestion service error:",
+        err.response?.data || err.message
+      )
+    })
 
     // Return structure expected by frontend
     res.json({
