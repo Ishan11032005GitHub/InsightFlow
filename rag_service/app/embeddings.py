@@ -1,31 +1,28 @@
-import os
-import requests
-from dotenv import load_dotenv
+from sentence_transformers import SentenceTransformer
 
-load_dotenv()
-
-TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
+model = SentenceTransformer("BAAI/bge-small-en-v1.5")
 
 
 def embed(texts):
 
-    url = "https://api.together.xyz/v1/embeddings"
+    vectors = model.encode(
+        texts,
+        normalize_embeddings=True
+    )
 
-    headers = {
-        "Authorization": f"Bearer {TOGETHER_API_KEY}",
-        "Content-Type": "application/json"
-    }
+    return vectors.tolist()
 
-    data = {
-        "model": "BAAI/bge-small-en-v1.5",
-        "input": texts
-    }
 
-    response = requests.post(url, json=data, headers=headers)
+def batch_embed(texts, batch_size=64):
 
-    if response.status_code != 200:
-        raise Exception(response.text)
+    vectors = []
 
-    result = response.json()
+    for i in range(0, len(texts), batch_size):
 
-    return [item["embedding"] for item in result["data"]]
+        batch = texts[i:i + batch_size]
+
+        vec = embed(batch)
+
+        vectors.extend(vec)
+
+    return vectors
