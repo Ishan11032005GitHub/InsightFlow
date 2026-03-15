@@ -5,9 +5,17 @@ from qdrant_client.http import models as qm
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 COLLECTION = "insightflow_chunks"
 
+_client = None
+
 
 def client():
-    return QdrantClient(url=QDRANT_URL)
+
+    global _client
+
+    if _client is None:
+        _client = QdrantClient(url=QDRANT_URL)
+
+    return _client
 
 
 def ensure_collection(dim):
@@ -44,18 +52,9 @@ def delete_by_filter(user_id, project_id, document_id):
 
     flt = qm.Filter(
         must=[
-            qm.FieldCondition(
-                key="user_id",
-                match=qm.MatchValue(value=user_id)
-            ),
-            qm.FieldCondition(
-                key="project_id",
-                match=qm.MatchValue(value=project_id)
-            ),
-            qm.FieldCondition(
-                key="document_id",
-                match=qm.MatchValue(value=document_id)
-            ),
+            qm.FieldCondition(key="user_id", match=qm.MatchValue(value=user_id)),
+            qm.FieldCondition(key="project_id", match=qm.MatchValue(value=project_id)),
+            qm.FieldCondition(key="document_id", match=qm.MatchValue(value=document_id))
         ]
     )
 
@@ -71,14 +70,8 @@ def search(query_vector, user_id, project_id, limit):
 
     flt = qm.Filter(
         must=[
-            qm.FieldCondition(
-                key="user_id",
-                match=qm.MatchValue(value=user_id)
-            ),
-            qm.FieldCondition(
-                key="project_id",
-                match=qm.MatchValue(value=project_id)
-            ),
+            qm.FieldCondition(key="user_id", match=qm.MatchValue(value=user_id)),
+            qm.FieldCondition(key="project_id", match=qm.MatchValue(value=project_id))
         ]
     )
 
