@@ -2,11 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import router
 
-app = FastAPI(title="InsightFlow RAG Service", version="1.0.0")
+app = FastAPI(
+    title="InsightFlow RAG Service",
+    version="1.0.0"
+)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten in pro
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -16,4 +19,4 @@ app.add_middleware(
 def health():
     return {"ok": True}
 
-app.include_router(router, prefix="")
+app.include_router(router)
