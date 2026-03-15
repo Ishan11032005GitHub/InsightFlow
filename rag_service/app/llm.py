@@ -14,7 +14,7 @@ client = OpenAI(
 MODEL = "llama-3.1-70b-versatile"
 
 
-def chat(system: str, user: str):
+def chat(system, user):
 
     resp = client.chat.completions.create(
         model=MODEL,
