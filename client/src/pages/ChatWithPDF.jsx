@@ -126,6 +126,7 @@ export default function ChatWithPDF() {
   const ragEngineRef = useRef(null)
   const location = useLocation()
   const { storeChatHistory } = useData()
+  const hasProcessedLocationPDF = useRef(false)
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -177,8 +178,11 @@ export default function ChatWithPDF() {
 
   // Handle file from navigation state (e.g., uploaded from Dashboard)
   useEffect(() => {
-    if (location.state?.file && location.state?.type === 'pdf' && !pdfFile) {
+    if (location.state?.file && location.state?.type === 'pdf' && !pdfFile && !hasProcessedLocationPDF.current) {
+      hasProcessedLocationPDF.current = true
       processFile(location.state.file)
+      // Clear navigation state to prevent re-processing
+      window.history.replaceState({}, document.title)
     }
   }, [location.state, processFile, pdfFile])
 

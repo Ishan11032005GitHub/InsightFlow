@@ -414,34 +414,35 @@ export default function Dashboard() {
             >
               <h3>Recent Activity</h3>
               <div className="activity-list">
-                <ActivityItem
-                  icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>}
-                  title="Sales Report Generated"
-                  subtitle="sales_data_2026.csv"
-                  time="2 min ago"
-                  color="#6c5ce7"
-                />
-                <ActivityItem
-                  icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>}
-                  title="PDF Chat Session"
-                  subtitle="quarterly_report.pdf"
-                  time="15 min ago"
-                  color="#f72585"
-                />
-                <ActivityItem
-                  icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/></svg>}
-                  title="Data Validation Complete"
-                  subtitle="inventory_data.xlsx"
-                  time="1 hour ago"
-                  color="#00d2ff"
-                />
-                <ActivityItem
-                  icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24"/></svg>}
-                  title="AI Insights Generated"
-                  subtitle="marketing_spend.csv"
-                  time="3 hours ago"
-                  color="#00e676"
-                />
+                {reports.length > 0 ? (
+                  reports.slice(0, 4).map((report) => {
+                    const isPdf = report.type === 'pdf';
+                    const icon = isPdf ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                      </svg>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6" y1="20" x2="6" y2="14"/>
+                      </svg>
+                    );
+                    
+                    return (
+                      <ActivityItem
+                        key={report.id}
+                        icon={icon}
+                        title={isPdf ? 'PDF Chat Session' : 'Report Generated'}
+                        subtitle={report.file}
+                        time={report.date}
+                        color={isPdf ? '#f72585' : '#6c5ce7'}
+                      />
+                    );
+                  })
+                ) : (
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No recent activity found.</p>
+                )}
               </div>
             </motion.div>
           </div>

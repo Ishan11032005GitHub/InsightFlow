@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
 
 const DataContext = createContext(null)
 
@@ -6,13 +6,58 @@ export function useData() {
   return useContext(DataContext)
 }
 
-export function DataProvider({ children }) {
+export function DataProvider({ children, user }) {
   // Stores parsed CSV/Excel data
   const [uploadedData, setUploadedData] = useState(null)   // array of row objects
   const [uploadedColumns, setUploadedColumns] = useState([]) // column names
   const [uploadedFileName, setUploadedFileName] = useState('')
   const [uploadedStats, setUploadedStats] = useState(null)  // computed stats
   const [reports, setReports] = useState([])                // history of reports
+
+  // Load data when user changes
+  useEffect(() => {
+    if (user && user.email) {
+      const stored = localStorage.getItem(`insightflow_data_${user.email}`)
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored)
+          setUploadedData(parsed.uploadedData || null)
+          setUploadedColumns(parsed.uploadedColumns || [])
+          setUploadedFileName(parsed.uploadedFileName || '')
+          setUploadedStats(parsed.uploadedStats || null)
+          setReports(parsed.reports || [])
+        } catch (e) {
+          console.error("Error parsing stored data", e)
+        }
+      } else {
+        setUploadedData(null)
+        setUploadedColumns([])
+        setUploadedFileName('')
+        setUploadedStats(null)
+        setReports([])
+      }
+    } else {
+      // Clear on logout
+      setUploadedData(null)
+      setUploadedColumns([])
+      setUploadedFileName('')
+      setUploadedStats(null)
+      setReports([])
+    }
+  }, [user])
+
+  // Save data when it changes
+  useEffect(() => {
+    if (user && user.email) {
+      localStorage.setItem(`insightflow_data_${user.email}`, JSON.stringify({
+        uploadedData,
+        uploadedColumns,
+        uploadedFileName,
+        uploadedStats,
+        reports
+      }))
+    }
+  }, [uploadedData, uploadedColumns, uploadedFileName, uploadedStats, reports, user])
 
   const storeData = (data, columns, fileName, stats) => {
     setUploadedData(data)
@@ -33,7 +78,7 @@ export function DataProvider({ children }) {
         status: 'complete',
         type: fileName.split('.').pop().toLowerCase(),
       },
-      ...prev,
+      ...(prev || []),
     ])
   }
 
@@ -51,7 +96,7 @@ export function DataProvider({ children }) {
         status: 'indexed',
         type: 'pdf',
       },
-      ...prev,
+      ...(prev || []),
     ])
   }
 
@@ -60,6 +105,10 @@ export function DataProvider({ children }) {
     setUploadedColumns([])
     setUploadedFileName('')
     setUploadedStats(null)
+  }
+
+  const deleteReport = (id) => {
+    setReports(prev => (prev || []).filter(r => r.id !== id))
   }
 
   return (
@@ -72,6 +121,7 @@ export function DataProvider({ children }) {
       storeData,
       storeChatHistory,
       clearData,
+      deleteReport,
     }}>
       {children}
     </DataContext.Provider>

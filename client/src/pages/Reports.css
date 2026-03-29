@@ -180,6 +180,19 @@
   color: var(--text-primary);
 }
 
+.report-btn.delete {
+  background: rgba(235, 77, 75, 0.1);
+  color: #eb4d4b;
+  border: 1px solid rgba(235, 77, 75, 0.15);
+  margin-left: auto;
+  padding: 7px;
+}
+
+.report-btn.delete:hover {
+  background: rgba(235, 77, 75, 0.2);
+  color: #ff7675;
+}
+
 .empty-state {
   text-align: center;
   padding: 60px;

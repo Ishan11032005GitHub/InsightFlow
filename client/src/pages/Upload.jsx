@@ -130,6 +130,16 @@ export default function Upload() {
   const navigate = useNavigate()
   const location = useLocation()
   const { storeData } = useData()
+  
+  const intervalRef = React.useRef(null)
+  const processedLocationRef = React.useRef(false)
+
+  // Cleanup interval on unmount
+  React.useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [])
 
   // Compute stats from parsed data
   const computeStats = useCallback((data, cols) => {
@@ -167,10 +177,13 @@ export default function Upload() {
       setCurrentStep(0)
 
       let step = 0
-      const interval = setInterval(() => {
+      // clear any existing interval
+      if (intervalRef.current) clearInterval(intervalRef.current)
+
+      intervalRef.current = setInterval(() => {
         step++
         if (step >= PIPELINE_STEPS.length) {
-          clearInterval(interval)
+          clearInterval(intervalRef.current)
           setIsProcessing(false)
           const computedStats = computeStats(data, cols)
           setStats(computedStats)
@@ -219,8 +232,11 @@ export default function Upload() {
 
   // Handle file from navigation state
   React.useEffect(() => {
-    if (location.state?.file && location.state?.type === 'csv') {
+    if (location.state?.file && location.state?.type === 'csv' && !processedLocationRef.current) {
+      processedLocationRef.current = true
       processFile(location.state.file)
+      // clear location state to prevent re-processing
+      window.history.replaceState({}, document.title)
     }
   }, [location.state, processFile])
 

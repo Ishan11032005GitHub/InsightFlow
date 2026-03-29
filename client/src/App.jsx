@@ -51,7 +51,7 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
-      <DataProvider>
+      <DataProvider user={user}>
         <Router>
           <Toaster
             position="top-right"

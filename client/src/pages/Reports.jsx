@@ -5,60 +5,7 @@ import { Sidebar } from './Dashboard'
 import { useData } from '../context/DataContext'
 import './Reports.css'
 
-const DEMO_REPORTS = [
-  {
-    id: 1,
-    name: 'Sales Analytics Q1 2026',
-    file: 'sales_data_q1.csv',
-    date: 'Mar 15, 2026',
-    rows: 2450,
-    insights: 12,
-    status: 'complete',
-    type: 'csv',
-  },
-  {
-    id: 2,
-    name: 'Marketing Campaign Report',
-    file: 'marketing_spend.csv',
-    date: 'Mar 14, 2026',
-    rows: 890,
-    insights: 8,
-    status: 'complete',
-    type: 'csv',
-  },
-  {
-    id: 3,
-    name: 'Inventory Analysis',
-    file: 'inventory_data.xlsx',
-    date: 'Mar 12, 2026',
-    rows: 5200,
-    insights: 15,
-    status: 'complete',
-    type: 'xlsx',
-  },
-  {
-    id: 4,
-    name: 'Customer Segmentation',
-    file: 'customers_2026.csv',
-    date: 'Mar 10, 2026',
-    rows: 3100,
-    insights: 10,
-    status: 'complete',
-    type: 'csv',
-  },
-  {
-    id: 5,
-    name: 'Revenue Forecast',
-    file: 'revenue_proj.xlsx',
-    date: 'Mar 8, 2026',
-    rows: 1800,
-    insights: 7,
-    status: 'processing',
-    type: 'xlsx',
-  },
-]
-
-function ReportCard({ report, delay }) {
+function ReportCard({ report, delay, onDelete }) {
   const navigate = useNavigate()
 
   return (
@@ -136,6 +83,12 @@ function ReportCard({ report, delay }) {
           </svg>
           Download
         </button>
+        <button className="report-btn delete" onClick={() => onDelete(report.id)} title="Delete Report">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
       </div>
     </motion.div>
   )
@@ -145,12 +98,10 @@ export default function Reports() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [filter, setFilter] = useState('all')
   const navigate = useNavigate()
-  const { reports: contextReports } = useData()
+  const { reports: contextReports, deleteReport } = useData()
 
-  // Merge user-uploaded reports with demo data
   const allReports = useMemo(() => [
-    ...contextReports,
-    ...DEMO_REPORTS,
+    ...(contextReports || [])
   ], [contextReports])
 
   const filteredReports = filter === 'all'
@@ -201,7 +152,7 @@ export default function Reports() {
           {/* Reports Grid */}
           <div className="reports-grid">
             {filteredReports.map((report, i) => (
-              <ReportCard key={report.id} report={report} delay={i * 0.08} />
+              <ReportCard key={report.id} report={report} delay={i * 0.08} onDelete={deleteReport} />
             ))}
           </div>
 
