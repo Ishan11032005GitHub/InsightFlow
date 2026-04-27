@@ -5,6 +5,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Load .env file
+from pathlib import Path
+env_path = Path(__file__).parent / '.env'
+if env_path.exists():
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, value = line.split('=', 1)
+                os.environ.setdefault(key.strip(), value.strip())
+
 from routes.authRoutes import auth_bp
 from routes.chatRoutes import chat_bp
 from routes.datasetRoutes import dataset_bp
@@ -27,4 +38,4 @@ if __name__ == '__main__':
     # Initialize basic folders
     os.makedirs('uploads', exist_ok=True)
     os.makedirs('data_store', exist_ok=True)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)

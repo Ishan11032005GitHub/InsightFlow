@@ -188,8 +188,14 @@ export default function Upload() {
           const computedStats = computeStats(data, cols)
           setStats(computedStats)
           setReportReady(true)
-          // Store in shared context so Visualization page can use it
-          storeData(data, cols, fileObj.name, computedStats)
+          // Defer context store to next frame so UI updates first
+          requestAnimationFrame(() => {
+            try {
+              storeData(data, cols, fileObj.name, computedStats)
+            } catch (e) {
+              console.error('Error storing data:', e)
+            }
+          })
           toast.success('🎉 Analysis complete! Report is ready.')
         } else {
           setCurrentStep(step)

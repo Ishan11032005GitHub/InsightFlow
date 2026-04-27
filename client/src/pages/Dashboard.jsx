@@ -5,6 +5,7 @@ import { useAuth } from '../App'
 import { useData } from '../context/DataContext'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
+import ThemeToggle from '../components/common/ThemeToggle'
 import './Dashboard.css'
 
 // Sidebar Navigation Component
@@ -58,6 +59,17 @@ function Sidebar({ collapsed, setCollapsed, currentPath }) {
       ),
     },
     {
+      path: '/ai-chat',
+      label: 'AI Chat',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      ),
+    },
+    {
       path: '/visualization',
       label: 'Visualizations',
       icon: (
@@ -65,6 +77,35 @@ function Sidebar({ collapsed, setCollapsed, currentPath }) {
           <line x1="18" y1="20" x2="18" y2="10"/>
           <line x1="12" y1="20" x2="12" y2="4"/>
           <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+      ),
+    },
+    {
+      path: '/data-cleaning',
+      label: 'Data Cleaning',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M4 7h16M4 12h10M4 17h6"/>
+        </svg>
+      ),
+    },
+    {
+      path: '/compare',
+      label: 'Compare Datasets',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="2" y="4" width="8" height="16" rx="1"/><rect x="14" y="4" width="8" height="16" rx="1"/>
+          <path d="M10 12h4"/>
+        </svg>
+      ),
+    },
+    {
+      path: '/history',
+      label: 'Activity History',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
         </svg>
       ),
     },
@@ -129,6 +170,7 @@ function Sidebar({ collapsed, setCollapsed, currentPath }) {
       </nav>
 
       <div className="sidebar-footer">
+        <ThemeToggle />
         {!collapsed && (
           <div className="user-info">
             <div className="user-avatar">

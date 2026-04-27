@@ -92,6 +92,49 @@
   --sidebar-collapsed: 72px;
 }
 
+/* ========================================
+   Light Theme Override
+   ======================================== */
+[data-theme="light"] {
+  --bg-primary: #f5f5fa;
+  --bg-secondary: #eeeef5;
+  --bg-tertiary: #e8e8f0;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8f8ff;
+  --bg-elevated: #ffffff;
+
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-hover: rgba(255, 255, 255, 0.85);
+
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a4a60;
+  --text-muted: #8888a0;
+  --text-accent: #6c5ce7;
+
+  --gradient-card: linear-gradient(145deg, rgba(108, 92, 231, 0.06), rgba(0, 210, 255, 0.03));
+  --gradient-dark: linear-gradient(180deg, #f5f5fa 0%, #eeeef5 50%, #e8e8f0 100%);
+  --gradient-glow: radial-gradient(circle at 50% 50%, rgba(108, 92, 231, 0.08) 0%, transparent 70%);
+  --gradient-mesh: radial-gradient(at 40% 20%, rgba(108, 92, 231, 0.05) 0px, transparent 50%),
+                   radial-gradient(at 80% 0%, rgba(0, 210, 255, 0.04) 0px, transparent 50%),
+                   radial-gradient(at 0% 50%, rgba(247, 37, 133, 0.02) 0px, transparent 50%);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 30px rgba(108, 92, 231, 0.12);
+  --shadow-glow-cyan: 0 0 30px rgba(0, 210, 255, 0.08);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+[data-theme="light"] .glass-card {
+  box-shadow: var(--shadow-sm);
+}
+
 /* Reset */
 *, *::before, *::after {
   margin: 0;

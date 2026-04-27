@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
+import ThemeToggle from '../components/common/ThemeToggle'
 import './LandingPage.css'
 
 /* ================================================
@@ -191,6 +192,7 @@ export default function LandingPage() {
             <a href="#faq">FAQ</a>
           </div>
           <div className="nav-actions">
+            <ThemeToggle />
             <button className="btn-ghost" onClick={() => navigate('/login')}>Sign In</button>
             <button className="btn-primary" onClick={() => navigate('/register')}>Get Started<span className="btn-shine" /></button>
           </div>

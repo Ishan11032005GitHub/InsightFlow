@@ -199,7 +199,25 @@ class TFIDFVectorizer {
 const STOP_WORDS = new Set(['a', 'an', 'the', 'is', 'it', 'of', 'in', 'to', 'and', 'or', 'for', 'on', 'at', 'by', 'be', 'as', 'are', 'was', 'were', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'can', 'shall', 'this', 'that', 'these', 'those', 'i', 'me', 'my', 'we', 'our', 'you', 'your', 'he', 'she', 'him', 'her', 'his', 'its', 'they', 'them', 'their', 'what', 'which', 'who', 'whom', 'when', 'where', 'why', 'how', 'all', 'each', 'every', 'both', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 'just', 'but', 'if', 'with', 'about', 'from', 'up', 'out', 'then', 'also', 'into'])
 
 // ============================================================
-// 4. RAG ENGINE 
+// 4. BACKEND LLM CLIENT
+// ============================================================
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001'
+
+async function callBackendLLM(question, context) {
+  const response = await fetch(`${API_BASE}/api/chat/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: question, context })
+  })
+  if (!response.ok) throw new Error(`Backend error: ${response.status}`)
+  const data = await response.json()
+  if (data.error) throw new Error(data.error)
+  return data.answer
+}
+
+// ============================================================
+// 5. RAG ENGINE 
 // ============================================================
 
 export class RAGEngine {
@@ -251,12 +269,18 @@ export class RAGEngine {
     const isSummaryQuestion = /summarize|summary|overview|main points|key (points|findings|info)|what is (this|it) about/i.test(questionLower)
     
     if (isSummaryQuestion || questionLower.length < 5) {
-      return this._generateSmartSummary()
+      const summary = this._generateSmartSummary()
+      try {
+        const answer = await callBackendLLM(question, summary.context)
+        return { answer, sources: summary.sources, context: summary.context }
+      } catch (e) {
+        console.warn('Backend LLM fallback:', e)
+        return summary
+      }
     }
 
     const queryEntities = question.match(/[A-Z][a-z]+|[0-9]+(?:\.[0-9]+)?%?/g) || []
-    // Increased from 5 to 15 chunks to provide massive context back to the Pro model
-    let results = this.vectorizer.search(question, 15)
+    let results = this.vectorizer.search(question, 8)
     
     if (queryEntities.length > 0) {
       results = results.map(res => {
@@ -269,27 +293,26 @@ export class RAGEngine {
     }
 
     if (results.length === 0 || results[0].score < 0.05) {
-      return this._generateSmartSummary(true)
+      const summary = this._generateSmartSummary(true)
+      try {
+        const answer = await callBackendLLM(question, summary.context)
+        return { answer, sources: summary.sources, context: summary.context }
+      } catch (e) {
+        console.warn('Backend LLM fallback:', e)
+        return summary
+      }
     }
 
     const relevantChunks = results.map(r => this.chunks[r.index])
     const sources = Array.from(new Set(relevantChunks.flatMap(c => c.pageNums))).sort((a, b) => a - b).map(p => `Page ${p}`)
     const contextText = relevantChunks.map(c => c.text).join('\n\n')
 
+    // Call backend (which uses Gemini) for answer generation
     try {
-      const response = await fetch('http://localhost:5000/api/chat/query', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: question,
-          context: contextText,
-          document_id: this.documentInfo?.fileName || 'unknown'
-        })
-      });
-      const data = await response.json();
-      return { answer: data.answer || this._reasonOverContext(question, relevantChunks), sources, context: contextText }
-    } catch (err) {
-      console.error("Backend error, falling back to local reasoning:", err);
+      const answer = await callBackendLLM(question, contextText)
+      return { answer, sources, context: contextText }
+    } catch (e) {
+      console.warn('Backend LLM error, using local fallback:', e)
       const answer = this._reasonOverContext(question, relevantChunks)
       return { answer, sources, context: contextText }
     }
@@ -324,6 +347,20 @@ export class RAGEngine {
   }
 
   _generateSmartSummary(isFallback = false) {
+    // Send a broad portion of the document for comprehensive summaries
+    // Use up to 8000 chars from the full text spread across the document
+    const fullLen = this.fullText.length
+    let broadContext = ''
+    if (fullLen <= 8000) {
+      broadContext = this.fullText
+    } else {
+      // Take beginning, middle, and end of the document for coverage
+      const third = Math.floor(8000 / 3)
+      broadContext = this.fullText.slice(0, third) + 
+        '\n...\n' + this.fullText.slice(Math.floor(fullLen / 2) - Math.floor(third / 2), Math.floor(fullLen / 2) + Math.floor(third / 2)) +
+        '\n...\n' + this.fullText.slice(-third)
+    }
+
     const sentences = this.fullText.match(/[^.!?]+[.!?]+/g) || [this.fullText]
     const scoredSentences = sentences.map(s => {
       const tokens = this.vectorizer.tokenize(s)
@@ -339,7 +376,7 @@ export class RAGEngine {
     return { 
       answer: prefix + summarySentences.map(s => `• ${s.text}`).join('\n\n'),
       sources: ["Overview"],
-      context: summarySentences.map(s => s.text).join(' ')
+      context: broadContext
     }
   }
 

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>InsightFlow — Tech Stack & Architecture</title>
+  <style>
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #1a1a2e; line-height: 1.6; padding: 40px 60px; max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2rem; color: #6c5ce7; border-bottom: 3px solid #6c5ce7; padding-bottom: 10px; margin-bottom: 8px; }
+    .subtitle { font-size: 0.95rem; color: #666; margin-bottom: 32px; }
+    h2 { font-size: 1.35rem; color: #2d3436; margin: 28px 0 14px; padding-bottom: 6px; border-bottom: 2px solid #dfe6e9; }
+    h3 { font-size: 1.05rem; color: #6c5ce7; margin: 18px 0 10px; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 20px; font-size: 0.88rem; }
+    th { background: #6c5ce7; color: #fff; text-align: left; padding: 8px 12px; font-weight: 600; }
+    td { padding: 7px 12px; border-bottom: 1px solid #eee; }
+    tr:nth-child(even) td { background: #f8f9ff; }
+    .code-block { background: #2d3436; color: #dfe6e9; padding: 14px 18px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.82rem; margin: 10px 0 18px; line-height: 1.7; white-space: pre-wrap; }
+    .section-card { background: #f8f9ff; border: 1px solid #e8e8f0; border-radius: 10px; padding: 18px 22px; margin: 12px 0 20px; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-right: 6px; }
+    .badge-purple { background: #6c5ce720; color: #6c5ce7; }
+    .badge-green { background: #00b89420; color: #00b894; }
+    .badge-blue { background: #0984e320; color: #0984e3; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .footer { margin-top: 40px; padding-top: 16px; border-top: 2px solid #eee; font-size: 0.8rem; color: #999; text-align: center; }
+    @media print {
+      body { padding: 20px 30px; }
+      h2 { page-break-after: avoid; }
+      table, .section-card { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>InsightFlow</h1>
+<p class="subtitle">Tech Stack, APIs, Frameworks & Architecture Documentation</p>
+
+<!-- ===== FRONTEND ===== -->
+<h2>1. Frontend</h2>
+
+<h3>Core Framework & Build</h3>
+<table>
+  <thead><tr><th>Layer</th><th>Technology</th><th>Version</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>Framework</td><td>React</td><td>18.2</td><td>UI component library</td></tr>
+    <tr><td>Build Tool</td><td>Vite</td><td>5.0</td><td>Dev server, HMR, bundling</td></tr>
+    <tr><td>Routing</td><td>React Router DOM</td><td>6.20</td><td>Client-side SPA routing</td></tr>
+    <tr><td>Language</td><td>JavaScript (ES Modules)</td><td>ESM</td><td>.jsx components</td></tr>
+  </tbody>
+</table>
+
+<h3>UI & Animation Libraries</h3>
+<table>
+  <thead><tr><th>Library</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>framer-motion</td><td>Page transitions, animations, gestures</td></tr>
+    <tr><td>lucide-react</td><td>Icon set for sidebar/navigation</td></tr>
+    <tr><td>react-hot-toast</td><td>Toast notifications</td></tr>
+    <tr><td>react-dropzone</td><td>Drag-and-drop file upload</td></tr>
+  </tbody>
+</table>
+
+<h3>Data & Charting</h3>
+<table>
+  <thead><tr><th>Library</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>chart.js + react-chartjs-2</td><td>Bar, line, pie, scatter charts on Visualization page</td></tr>
+    <tr><td>papaparse</td><td>CSV parsing (client-side, used in Upload, Compare, DataCleaning)</td></tr>
+    <tr><td>xlsx</td><td>Excel (.xlsx/.xls) file parsing</td></tr>
+    <tr><td>pdfjs-dist</td><td>PDF text extraction in the browser (Chat with PDF)</td></tr>
+  </tbody>
+</table>
+
+<h3>Export & Reporting</h3>
+<table>
+  <thead><tr><th>Library</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>jspdf</td><td>Generate PDF reports client-side</td></tr>
+    <tr><td>html2canvas</td><td>Screenshot DOM elements for PDF export</td></tr>
+  </tbody>
+</table>
+
+<!-- ===== BACKEND ===== -->
+<h2>2. Backend</h2>
+
+<h3>Core Stack</h3>
+<table>
+  <thead><tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>Framework</td><td>Flask (Python)</td><td>REST API server</td></tr>
+    <tr><td>CORS</td><td>Flask-CORS</td><td>Cross-origin requests from React frontend</td></tr>
+    <tr><td>Database</td><td>MongoDB via pymongo</td><td>User data, datasets, reports, sessions</td></tr>
+    <tr><td>Auth</td><td>bcrypt + PyJWT</td><td>Password hashing + JWT token authentication</td></tr>
+  </tbody>
+</table>
+
+<h3>Data Processing</h3>
+<table>
+  <thead><tr><th>Library</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>pandas</td><td>CSV/Excel reading, statistical analysis, data cleaning</td></tr>
+    <tr><td>numpy</td><td>Numerical computations</td></tr>
+  </tbody>
+</table>
+
+<h3>RAG Pipeline (Server-side)</h3>
+<table>
+  <thead><tr><th>Library</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>sentence-transformers</td><td>Embedding model (all-MiniLM-L6-v2, 384-dim vectors)</td></tr>
+    <tr><td>faiss-cpu</td><td>FAISS vector store for similarity search</td></tr>
+    <tr><td>PyPDF2</td><td>Server-side PDF text extraction</td></tr>
+  </tbody>
+</table>
+
+<!-- ===== APIS ===== -->
+<h2>3. External APIs</h2>
+
+<div class="section-card">
+  <h3 style="margin-top:0;">Google Gemini API <span class="badge badge-purple">gemini-2.0-flash</span></h3>
+  <table>
+    <thead><tr><th>Used In</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>AI Chat</td><td>General-purpose AI assistant</td></tr>
+      <tr><td>Chat with PDF</td><td>Answer questions from PDF context (RAG)</td></tr>
+      <tr><td>Insight Generation</td><td>Generate analysis insights from data</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:0.85rem; color:#666; margin-top:8px;">
+    <strong>Endpoint:</strong> <code>generativelanguage.googleapis.com/v1beta/models/</code><br>
+    <strong>Auth:</strong> API Key<br>
+    <strong>Note:</strong> This is the <em>only</em> external API. Everything else runs locally.
+  </p>
+</div>
+
+<!-- ===== RAG ARCHITECTURE ===== -->
+<h2>4. RAG Architecture (Dual Pipeline)</h2>
+
+<div class="two-col">
+  <div class="section-card">
+    <h3 style="margin-top:0;">Server-side Pipeline</h3>
+    <p style="font-size:0.82rem; color:#555;"><code>rag_pipeline.py</code></p>
+    <div class="code-block">PDF
+→ PyPDF2 (extraction)
+→ TextCleaner
+→ TextChunker (600 chars, 150 overlap)
+→ SentenceTransformer embeddings
+→ FAISS vector index
+→ Retriever (similarity search)
+→ Gemini LLM (answer generation)</div>
+  </div>
+  <div class="section-card">
+    <h3 style="margin-top:0;">Client-side Pipeline</h3>
+    <p style="font-size:0.82rem; color:#555;"><code>pdfRagEngine.js</code></p>
+    <div class="code-block">PDF
+→ pdf.js (browser extraction)
+→ Sentence-aware chunking
+→ Custom TF-IDF vectorizer
+→ Cosine similarity retrieval
+→ Entity boosting
+→ Gemini LLM (via backend proxy)</div>
+  </div>
+</div>
+
+<!-- ===== PROJECT STRUCTURE ===== -->
+<h2>5. Project Structure & Ports</h2>
+
+<table>
+  <thead><tr><th>Component</th><th>Technology</th><th>Port</th></tr></thead>
+  <tbody>
+    <tr><td>Frontend</td><td>React + Vite</td><td>localhost:5173</td></tr>
+    <tr><td>Backend</td><td>Flask (Python)</td><td>localhost:5001</td></tr>
+    <tr><td>Database</td><td>MongoDB</td><td>localhost:27017</td></tr>
+    <tr><td>State Management</td><td>React Context API + localStorage</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<!-- ===== ARCHITECTURAL PATTERNS ===== -->
+<h2>6. Key Architectural Patterns</h2>
+
+<div class="section-card">
+  <ul style="font-size:0.9rem; padding-left:20px; list-style:disc;">
+    <li><strong>State Management:</strong> React Context (DataContext, AuthContext) with localStorage persistence</li>
+    <li><strong>Authentication:</strong> JWT tokens stored in localStorage, verified by authMiddleware.py</li>
+    <li><strong>File Processing:</strong> Client-side (PapaParse, xlsx, pdf.js) — no server upload needed for CSV/Excel</li>
+    <li><strong>Server Structure:</strong> Flask Blueprints with MVC pattern (routes → controllers → services → models)</li>
+    <li><strong>SDLC Model:</strong> Incremental + Evolutionary Prototype Hybrid</li>
+    <li><strong>Dual RAG:</strong> Client-side TF-IDF retrieval + Server-side FAISS/embedding pipeline</li>
+    <li><strong>No-code Data Wrangling:</strong> 7 cleaning operations running entirely in-browser</li>
+  </ul>
+</div>
+
+<!-- ===== NOVELTY ===== -->
+<h2>7. Key Novelties</h2>
+
+<table>
+  <thead><tr><th>Feature</th><th>What Makes It Novel</th></tr></thead>
+  <tbody>
+    <tr><td>Browser-side RAG engine</td><td>Full TF-IDF + cosine similarity retrieval in pure JS with entity boosting</td></tr>
+    <tr><td>Dual RAG architecture</td><td>Client-side TF-IDF + server-side FAISS/embedding pipeline with LLM backend</td></tr>
+    <tr><td>No-code data cleaning</td><td>7-operation interactive data wrangling with live preview, all in-browser</td></tr>
+    <tr><td>Dataset comparison</td><td>Structural + statistical diffing of two CSVs with auto type detection</td></tr>
+    <tr><td>PDF chat with citations</td><td>Answers include page-level source citations traced through the chunk pipeline</td></tr>
+    <tr><td>Session-based memory</td><td>Persistent conversation history enabling context-aware multi-turn analysis</td></tr>
+  </tbody>
+</table>
+
+<div class="footer">
+  InsightFlow — AI-Powered Data Analytics Platform &nbsp;|&nbsp; Generated April 2026
+</div>
+
+</body>
+</html>

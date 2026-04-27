@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../App'
+import { useData } from '../context/DataContext'
 import toast from 'react-hot-toast'
 import './Auth.css'
 
@@ -12,6 +13,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
   const { login } = useAuth()
+  const { addActivity } = useData()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -20,13 +22,31 @@ export default function Login() {
       return
     }
     setIsLoading(true)
-    // Simulate auth
-    setTimeout(() => {
-      login({ email, name: email.split('@')[0], id: Date.now() })
+    try {
+      const resp = await fetch('http://localhost:5001/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      const data = await resp.json()
+      if (!resp.ok) {
+        toast.error(data.error || 'Login failed')
+        setIsLoading(false)
+        return
+      }
+      if (data.token) localStorage.setItem('insightflow_token', data.token)
+      login({ email: data.user.email, name: data.user.name, id: data.user.id })
+      addActivity('login', `Logged in as ${data.user.name}`, data.user.email)
       toast.success('Welcome back!')
       navigate('/dashboard')
-      setIsLoading(false)
-    }, 1200)
+    } catch {
+      // Offline fallback
+      login({ email, name: email.split('@')[0], id: Date.now() })
+      addActivity('login', `Logged in as ${email.split('@')[0]}`, `${email} (offline mode)`)
+      toast.success('Welcome (offline mode)!')
+      navigate('/dashboard')
+    }
+    setIsLoading(false)
   }
 
   return (

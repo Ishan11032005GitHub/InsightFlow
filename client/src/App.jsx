@@ -9,7 +9,11 @@ import Dashboard from './pages/Dashboard'
 import Upload from './pages/Upload'
 import Reports from './pages/Reports'
 import ChatWithPDF from './pages/ChatWithPDF'
+import AIChat from './pages/AIChat'
 import Visualization from './pages/Visualization'
+import DataCleaning from './pages/DataCleaning'
+import CompareDatasets from './pages/CompareDatasets'
+import History from './pages/History'
 
 // Info Pages — Product
 import { FeaturesPage, SolutionsPage, PricingPage, IntegrationsPage, ChangelogPage } from './pages/info/ProductPages'
@@ -40,8 +44,18 @@ function ScrollToTop() {
   return null
 }
 
+function getStoredUser() {
+  try {
+    const saved = localStorage.getItem('insightflow_user')
+    return saved ? JSON.parse(saved) : null
+  } catch {
+    localStorage.removeItem('insightflow_user')
+    return null
+  }
+}
+
 export default function App() {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(getStoredUser)
 
   const login = (userData) => {
     setUser(userData)
@@ -51,18 +65,13 @@ export default function App() {
   const logout = () => {
     setUser(null)
     localStorage.removeItem('insightflow_user')
+    localStorage.removeItem('insightflow_token')
   }
 
-  // Restore session
+  // Initialize theme
   React.useEffect(() => {
-    const saved = localStorage.getItem('insightflow_user')
-    if (saved) {
-      try {
-        setUser(JSON.parse(saved))
-      } catch (e) {
-        localStorage.removeItem('insightflow_user')
-      }
-    }
+    const theme = localStorage.getItem('insightflow-theme') || 'dark'
+    document.documentElement.setAttribute('data-theme', theme)
   }, [])
 
   return (
@@ -87,11 +96,33 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
-            <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-            <Route path="/chat" element={<ProtectedRoute><ChatWithPDF /></ProtectedRoute>} />
-            <Route path="/visualization" element={<ProtectedRoute><Visualization /></ProtectedRoute>} />
+            <Route path="/dashboard" element={
+              <ProtectedRoute><Dashboard /></ProtectedRoute>
+            } />
+            <Route path="/upload" element={
+              <ProtectedRoute><Upload /></ProtectedRoute>
+            } />
+            <Route path="/reports" element={
+              <ProtectedRoute><Reports /></ProtectedRoute>
+            } />
+            <Route path="/chat" element={
+              <ProtectedRoute><ChatWithPDF /></ProtectedRoute>
+            } />
+            <Route path="/ai-chat" element={
+              <ProtectedRoute><AIChat /></ProtectedRoute>
+            } />
+            <Route path="/visualization" element={
+              <ProtectedRoute><Visualization /></ProtectedRoute>
+            } />
+            <Route path="/data-cleaning" element={
+              <ProtectedRoute><DataCleaning /></ProtectedRoute>
+            } />
+            <Route path="/compare" element={
+              <ProtectedRoute><CompareDatasets /></ProtectedRoute>
+            } />
+            <Route path="/history" element={
+              <ProtectedRoute><History /></ProtectedRoute>
+            } />
 
             {/* Product Pages */}
             <Route path="/features" element={<FeaturesPage />} />

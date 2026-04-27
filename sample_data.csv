@@ -1,0 +1,31 @@
+Name,Age,City,Department,Salary,Experience_Years,Rating,Gender
+Alice Johnson,30,New York,Engineering,95000,7,4.5,Female
+Bob Smith,25,Los Angeles,Marketing,62000,3,3.8,Male
+Charlie Brown,35,New York,Engineering,110000,12,4.7,Male
+Diana Ross,28,Chicago,Sales,68000,4,4.1,Female
+Eve Wilson,32,Los Angeles,Engineering,88000,8,4.3,Female
+Frank Miller,45,Houston,Management,125000,20,4.9,Male
+Grace Lee,27,San Francisco,Data Science,92000,5,4.4,Female
+Henry Davis,38,Chicago,Sales,75000,10,3.9,Male
+Iris Chen,29,San Francisco,Data Science,98000,6,4.6,Female
+Jack Taylor,33,New York,Marketing,71000,8,3.7,Male
+Kate Adams,31,Houston,Engineering,93000,7,4.2,Female
+Liam Moore,42,Los Angeles,Management,118000,18,4.8,Male
+Mia Garcia,26,Chicago,Marketing,58000,2,3.5,Female
+Noah White,36,San Francisco,Engineering,105000,11,4.5,Male
+Olivia Martin,29,New York,Data Science,89000,5,4.3,Female
+Paul Thompson,40,Houston,Sales,82000,15,4.0,Male
+Quinn Harris,24,Los Angeles,Marketing,55000,1,3.2,Female
+Ryan Clark,34,Chicago,Engineering,97000,9,4.4,Male
+Sarah Lewis,37,San Francisco,Management,112000,14,4.7,Female
+Tom Robinson,28,New York,Sales,65000,3,3.6,Male
+Uma Patel,31,Houston,Data Science,96000,7,4.5,Female
+Victor Young,43,Los Angeles,Management,130000,19,4.9,Male
+Wendy King,26,Chicago,Marketing,60000,2,3.4,Female
+Xavier Scott,39,San Francisco,Engineering,108000,13,4.6,Male
+Yara Hill,30,New York,Data Science,91000,6,4.2,Female
+Zach Green,35,Houston,Sales,78000,10,4.0,Male
+Amy Baker,27,Los Angeles,Engineering,85000,4,4.1,Female
+Brian Nelson,41,Chicago,Management,120000,17,4.8,Male
+Clara Evans,33,San Francisco,Marketing,72000,8,3.9,Female
+David Turner,29,New York,Engineering,90000,5,4.3,Male

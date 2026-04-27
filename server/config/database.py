@@ -1,15 +1,15 @@
 import os
+from pymongo import MongoClient
 
-class DatabaseConfig:
-    """Mock database config for InsightsFlow"""
-    DB_HOST = os.getenv('DB_HOST', 'localhost')
-    DB_PORT = os.getenv('DB_PORT', '5432')
-    DB_USER = os.getenv('DB_USER', 'postgres')
-    DB_PASS = os.getenv('DB_PASS', 'postgres')
-    DB_NAME = os.getenv('DB_NAME', 'insightflow_db')
+MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017')
+DB_NAME = os.getenv('MONGO_DB', 'insightflow')
 
-    @classmethod
-    def get_connection_string(cls):
-        return f"postgresql://{cls.DB_USER}:{cls.DB_PASS}@{cls.DB_HOST}:{cls.DB_PORT}/{cls.DB_NAME}"
+_client = None
+_db = None
 
-db_config = DatabaseConfig()
+def get_db():
+    global _client, _db
+    if _db is None:
+        _client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        _db = _client[DB_NAME]
+    return _db

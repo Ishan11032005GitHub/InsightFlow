@@ -3,10 +3,43 @@ import { useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
-import { PageShell } from './Dashboard'
+import { Sidebar } from './Dashboard'
 import { RAGEngine } from '../utils/pdfRagEngine'
 import { useData } from '../context/DataContext'
 import './ChatWithPDF.css'
+
+// Convert markdown-style formatting to clean HTML
+function formatMessage(text) {
+  if (!text) return ''
+  let html = text
+    // Code blocks
+    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
+    // Inline code
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // Bold
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Italic
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Headers
+    .replace(/^### (.+)$/gm, '<h4>$1</h4>')
+    .replace(/^## (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^# (.+)$/gm, '<h2>$1</h2>')
+    // Bullet lists
+    .replace(/^[\-\*] (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+    // Fix nested <ul> from consecutive replacements
+    .replace(/<\/ul>\s*<ul>/g, '')
+    // Numbered lists
+    .replace(/^\d+\.\s(.+)$/gm, '<li>$1</li>')
+    // Horizontal rule
+    .replace(/^---$/gm, '<hr/>')
+    // Line breaks (but not inside pre/code blocks)
+    .replace(/\n/g, '<br/>')
+    // Clean up excessive <br/> around block elements
+    .replace(/<br\/?>\s*(<\/?(?:h[2-4]|ul|ol|li|pre|hr)>)/g, '$1')
+    .replace(/(<\/?(?:h[2-4]|ul|ol|li|pre|hr)>)\s*<br\/?>/g, '$1')
+  return html
+}
 
 // Typing animation component
 function TypingIndicator() {
@@ -47,7 +80,7 @@ function ChatMessage({ message, isLast }) {
           <span className="message-sender">{message.role === 'user' ? 'You' : 'InsightFlow AI'}</span>
           <span className="message-time">{message.time}</span>
         </div>
-        <div className="message-text" style={{ whiteSpace: 'pre-wrap' }}>{message.text}</div>
+        <div className="message-text" dangerouslySetInnerHTML={{ __html: formatMessage(message.text) }} />
         {message.sources && message.sources.length > 0 && (
           <div className="message-sources">
             <span className="sources-label">
@@ -111,30 +144,34 @@ function PDFPipeline({ step, isProcessing, stepMessage }) {
 
 export default function ChatWithPDF() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [pdfFile, setPdfFile] = useState(null)
   const [isIndexing, setIsIndexing] = useState(false)
   const [indexStep, setIndexStep] = useState(-1)
   const [stepMessage, setStepMessage] = useState('')
-  const [isReady, setIsReady] = useState(false)
-  const [messages, setMessages] = useState([])
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [documentInfo, setDocumentInfo] = useState(null)
-  const [suggestedQuestions, setSuggestedQuestions] = useState([])
   const [processingError, setProcessingError] = useState(null)
   const chatEndRef = useRef(null)
-  const ragEngineRef = useRef(null)
   const location = useLocation()
-  const { storeChatHistory } = useData()
+  const {
+    storeChatHistory,
+    pdfChatMessages, setPdfChatMessages,
+    pdfFileName, setPdfFileName,
+    pdfDocumentInfo, setPdfDocumentInfo,
+    pdfIsReady, setPdfIsReady,
+    pdfSuggestedQuestions, setPdfSuggestedQuestions,
+    pdfRagEngineRef,
+    clearPdfChat,
+    addActivity,
+  } = useData()
   const hasProcessedLocationPDF = useRef(false)
 
   // Auto-scroll to bottom
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, isTyping])
+  }, [pdfChatMessages, isTyping])
 
   const processFile = useCallback(async (file) => {
-    setPdfFile(file)
+    setPdfFileName(file.name)
     setIsIndexing(true)
     setIndexStep(0)
     setProcessingError(null)
@@ -142,7 +179,7 @@ export default function ChatWithPDF() {
 
     // Create a fresh RAG engine
     const engine = new RAGEngine()
-    ragEngineRef.current = engine
+    pdfRagEngineRef.current = engine
 
     try {
       const info = await engine.processFile(file, (step, message) => {
@@ -150,18 +187,18 @@ export default function ChatWithPDF() {
         setStepMessage(message)
       })
 
-      setDocumentInfo(info)
+      setPdfDocumentInfo(info)
       setIsIndexing(false)
-      setIsReady(true)
+      setPdfIsReady(true)
 
       // Get contextual suggested questions
       const questions = engine.getSuggestedQuestions()
-      setSuggestedQuestions(questions)
+      setPdfSuggestedQuestions(questions)
 
       // Store in global history
       storeChatHistory(file.name, info)
 
-      setMessages([{
+      setPdfChatMessages([{
         role: 'assistant',
         text: `I've successfully processed "${file.name}"!\n\n📄 Pages: ${info.numPages}\n📦 Chunks indexed: ${info.numChunks}\n📝 Characters extracted: ${info.textLength.toLocaleString()}\n\nThe document has been indexed and I'm ready to answer your questions. Ask me anything about the content!`,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -174,17 +211,17 @@ export default function ChatWithPDF() {
       setProcessingError(error.message)
       toast.error(error.message || 'Failed to process PDF')
     }
-  }, [])
+  }, [storeChatHistory, setPdfChatMessages, setPdfFileName, setPdfDocumentInfo, setPdfIsReady, setPdfSuggestedQuestions, pdfRagEngineRef])
 
   // Handle file from navigation state (e.g., uploaded from Dashboard)
   useEffect(() => {
-    if (location.state?.file && location.state?.type === 'pdf' && !pdfFile && !hasProcessedLocationPDF.current) {
+    if (location.state?.file && location.state?.type === 'pdf' && !pdfFileName && !hasProcessedLocationPDF.current) {
       hasProcessedLocationPDF.current = true
       processFile(location.state.file)
       // Clear navigation state to prevent re-processing
       window.history.replaceState({}, document.title)
     }
-  }, [location.state, processFile, pdfFile])
+  }, [location.state, processFile, pdfFileName])
 
   const onDrop = useCallback((accepted) => {
     if (accepted.length > 0) {
@@ -213,15 +250,15 @@ export default function ChatWithPDF() {
       text: question,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     }
-    setMessages(prev => [...prev, userMsg])
+    setPdfChatMessages(prev => [...prev, userMsg])
     setInputValue('')
     setIsTyping(true)
 
-    // Query the RAG engine
-    setTimeout(async () => {
-      const engine = ragEngineRef.current
+    // Query the RAG engine (async for Gemini support)
+    const queryRAG = async () => {
+      const engine = pdfRagEngineRef.current
       if (!engine || !engine.isReady) {
-        setMessages(prev => [...prev, {
+        setPdfChatMessages(prev => [...prev, {
           role: 'assistant',
           text: 'Please upload and process a PDF document first.',
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -231,34 +268,42 @@ export default function ChatWithPDF() {
         return
       }
 
-      const result = await engine.query(question)
-      const aiMsg = {
-        role: 'assistant',
-        text: result.answer,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        sources: result.sources,
+      try {
+        const result = await engine.query(question)
+        const aiMsg = {
+          role: 'assistant',
+          text: result.answer,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          sources: result.sources,
+        }
+        setPdfChatMessages(prev => [...prev, aiMsg])
+        addActivity('pdf', 'PDF Chat question', `${pdfFileName}: ${question.slice(0, 60)}`)
+      } catch (err) {
+        setPdfChatMessages(prev => [...prev, {
+          role: 'assistant',
+          text: 'Sorry, something went wrong generating the answer. Please try again.',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          sources: [],
+        }])
       }
-      setMessages(prev => [...prev, aiMsg])
       setIsTyping(false)
-    }, 100)
+    }
+    queryRAG()
   }
 
   const handleReset = () => {
-    setPdfFile(null)
-    setIsReady(false)
-    setMessages([])
+    clearPdfChat()
     setIndexStep(-1)
     setStepMessage('')
-    setDocumentInfo(null)
-    setSuggestedQuestions([])
     setProcessingError(null)
-    ragEngineRef.current = null
   }
 
   return (
-    <PageShell currentPath="/chat" breadcrumb="Chat with PDF">
-         <div className="chat-page">
-          {!pdfFile ? (
+    <div className="app-layout">
+      <Sidebar collapsed={sidebarCollapsed} setCollapsed={setSidebarCollapsed} currentPath="/chat" />
+      <main className={`main-content ${sidebarCollapsed ? 'expanded' : ''}`}>
+        <div className="page-enter chat-page">
+          {!pdfFileName ? (
             /* Upload State */
             <div className="chat-upload-state">
               <motion.div
@@ -335,7 +380,7 @@ export default function ChatWithPDF() {
                 </div>
               </motion.div>
             </div>
-          ) : !isReady ? (
+          ) : !pdfIsReady ? (
             /* Processing State */
             <div className="chat-processing-state">
               <motion.div
@@ -351,8 +396,8 @@ export default function ChatWithPDF() {
                     </svg>
                   </div>
                   <div>
-                    <h3>Processing: {pdfFile.name}</h3>
-                    <p>{(pdfFile.size / 1024).toFixed(1)} KB</p>
+                    <h3>Processing: {pdfFileName}</h3>
+                    <p>Indexing document...</p>
                   </div>
                 </div>
                 <PDFPipeline step={indexStep} isProcessing={isIndexing} stepMessage={stepMessage} />
@@ -394,12 +439,12 @@ export default function ChatWithPDF() {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
                     </svg>
-                    <span>{pdfFile.name}</span>
+                    <span>{pdfFileName}</span>
                   </div>
                   <div className="chat-status">
                     <span className="status-dot" />
                     <span>
-                      Indexed — {documentInfo?.numPages} pages, {documentInfo?.numChunks} chunks
+                      Indexed — {pdfDocumentInfo?.numPages} pages, {pdfDocumentInfo?.numChunks} chunks
                     </span>
                   </div>
                 </div>
@@ -408,11 +453,38 @@ export default function ChatWithPDF() {
                 </button>
               </div>
 
+              {/* Re-upload notice after page refresh */}
+              {pdfIsReady && !pdfRagEngineRef.current && (
+                <motion.div
+                  className="reupload-notice"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{
+                    margin: '0 1rem 0.5rem',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '10px',
+                    background: 'rgba(255, 193, 7, 0.1)',
+                    border: '1px solid rgba(255, 193, 7, 0.3)',
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.85rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                  }}
+                >
+                  <span>⚠️</span>
+                  <span>Session refreshed — re-upload the PDF to ask new questions. Your previous chat is preserved above.</span>
+                  <button className="btn-outline" onClick={handleReset} style={{ marginLeft: 'auto', fontSize: '0.8rem', padding: '0.3rem 0.8rem' }}>
+                    Upload New PDF
+                  </button>
+                </motion.div>
+              )}
+
               {/* Messages Area */}
               <div className="chat-messages">
                 <AnimatePresence>
-                  {messages.map((msg, i) => (
-                    <ChatMessage key={i} message={msg} isLast={i === messages.length - 1} />
+                  {pdfChatMessages.map((msg, i) => (
+                    <ChatMessage key={i} message={msg} isLast={i === pdfChatMessages.length - 1} />
                   ))}
                 </AnimatePresence>
                 {isTyping && (
@@ -437,14 +509,14 @@ export default function ChatWithPDF() {
               </div>
 
               {/* Suggested Questions */}
-              {messages.length <= 1 && suggestedQuestions.length > 0 && (
+              {pdfChatMessages.length <= 1 && pdfSuggestedQuestions.length > 0 && (
                 <motion.div
                   className="suggested-questions"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
                 >
-                  {suggestedQuestions.map((q, i) => (
+                  {pdfSuggestedQuestions.map((q, i) => (
                     <button
                       key={i}
                       className="suggested-btn"
@@ -483,7 +555,8 @@ export default function ChatWithPDF() {
               </form>
             </div>
           )}
-         </div>
-    </PageShell>
+        </div>
+      </main>
+    </div>
   )
 }

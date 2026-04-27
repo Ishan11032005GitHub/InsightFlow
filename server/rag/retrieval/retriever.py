@@ -1,5 +1,5 @@
-from server.rag.embeddings.embedding_model import EmbeddingModel
-from server.rag.vector_store.faiss_store import FAISSStore
+from rag.embeddings.embedding_model import EmbeddingModel
+from rag.vector_store.faiss_store import FAISSStore
 
 class Retriever:
     """Coordinates the retrieval process from the vector store using an embedding model."""

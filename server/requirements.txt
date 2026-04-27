@@ -6,6 +6,9 @@ PyPDF2
 faiss-cpu
 sentence-transformers
 requests
+pymongo
+bcrypt
+PyJWT
 python-dotenv
 openai
 google-generativeai

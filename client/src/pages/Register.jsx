@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../App'
+import { useData } from '../context/DataContext'
 import toast from 'react-hot-toast'
 import './Auth.css'
 
@@ -14,6 +15,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
   const { login } = useAuth()
+  const { addActivity } = useData()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -30,12 +32,29 @@ export default function Register() {
       return
     }
     setIsLoading(true)
-    setTimeout(() => {
-      login({ name, email, id: Date.now() })
+    try {
+      const resp = await fetch('http://localhost:5001/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name, password }),
+      })
+      const data = await resp.json()
+      if (!resp.ok) {
+        toast.error(data.error || 'Registration failed')
+        setIsLoading(false)
+        return
+      }
+      login({ name: data.user.name, email: data.user.email, id: data.user.id })
+      addActivity('login', `Registered as ${data.user.name}`, data.user.email)
       toast.success('Account created successfully!')
       navigate('/dashboard')
-      setIsLoading(false)
-    }, 1200)
+    } catch {
+      login({ name, email, id: Date.now() })
+      addActivity('login', `Registered as ${name}`, `${email} (offline mode)`)
+      toast.success('Account created (offline mode)!')
+      navigate('/dashboard')
+    }
+    setIsLoading(false)
   }
 
   return (
